@@ -15,13 +15,13 @@ export const UsageTrendsChart: React.FC<UsageTrendsProps> = ({ transactions }) =
     const existingMonth = acc.find(item => item.month === monthYear);
     if (existingMonth) {
       if (transaction.transaction_type === 'usage') {
-        existingMonth.credits += transaction.amount;
+        existingMonth.credits += transaction.credit_amount;
         existingMonth.analyses += 1;
       }
     } else {
       acc.push({
         month: monthYear,
-        credits: transaction.transaction_type === 'usage' ? transaction.amount : 0,
+        credits: transaction.transaction_type === 'usage' ? transaction.credit_amount : 0,
         analyses: transaction.transaction_type === 'usage' ? 1 : 0
       });
     }

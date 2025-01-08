@@ -23,7 +23,6 @@ import
 } from '@/src/redux/features/dashboard/analysisApi';
 import { useGetUserCouponHistoryQuery, useValidateCouponMutation } from '@/src/redux/features/dashboard/couponApi';
 import { useApplyCouponMutation } from '@/src/redux/features/dashboard/dashboardApi';
-import { useRecordUsageMutation } from '@/src/redux/features/dashboard/creditsApi';
 
 interface UploadCompleteProps
 {
@@ -58,7 +57,9 @@ export const UploadComplete = ({
     const { data: activeCouponsData } = useGetUserCouponHistoryQuery();
     const { data: analysisTypes } = useGetAnalysisTypesQuery();
     const [validateCoupon] = useValidateCouponMutation();
-    
+    const [performAnalysis] = usePerformAnalysisMutation();
+    const [applyCoupon] = useApplyCouponMutation();
+
 
 
     const currentAnalysisType = React.useMemo(() =>
@@ -124,42 +125,81 @@ export const UploadComplete = ({
         }
     };
 
-    const handleCouponValidation = async (code: string) =>
-    {
-        if (!code) return;
+    // const handleCouponValidation = async (code: string) =>
+    // {
+    //     if (!code) return;
 
+    //     setIsValidatingCoupon(true);
+    //     setCouponError('');
+
+    //     try
+    //     {
+    //         const result = await validateCoupon({ code }).unwrap();
+
+    //         if (result.is_applicable)
+    //         {
+    //             // Extract the numeric value from discount_type (e.g., "20% off" -> 20)
+    //             if (result.coupon_type === 'percentage')
+    //             {
+    //                 setCouponDiscount(parseFloat(result.discount_value));
+    //             } else
+    //             {
+    //                 setCouponDiscount(0); // Handle other coupon types as needed
+    //             }
+    //         } else
+    //         {
+    //             setCouponError(result.validation_message);
+    //             setCouponDiscount(0);
+    //         }
+    //     } catch (error: any)
+    //     {
+    //         setCouponError(error.data?.error || 'Error validating coupon');
+    //         setCouponDiscount(0);
+    //     } finally
+    //     {
+    //         setIsValidatingCoupon(false);
+    //     }
+    // };
+
+    const handleCouponValidation = async (code: string) => {
+        if (!code) return;
+    
         setIsValidatingCoupon(true);
         setCouponError('');
-
-        try
-        {
+    
+        try {
             const result = await validateCoupon({ code }).unwrap();
-
-            if (result.is_applicable)
-            {
-                // Extract the numeric value from discount_type (e.g., "20% off" -> 20)
-                if (result.coupon_type === 'percentage')
-                {
-                    setCouponDiscount(parseFloat(result.discount_value));
-                } else
-                {
-                    setCouponDiscount(0); // Handle other coupon types as needed
+    
+            if (result.is_applicable) {
+                // Apply the coupon if it's valid
+                try {
+                    await applyCoupon({ code }).unwrap();
+                    
+                    // Extract the numeric value from discount_type
+                    if (result.coupon_type === 'percentage') {
+                        setCouponDiscount(parseFloat(result.discount_value));
+                    } else if (result.coupon_type === 'fixed') {
+                        setCouponDiscount(parseFloat(result.discount_value));
+                    } else if (result.coupon_type === 'analysis_count') {
+                        setCouponDiscount(100); // Free analysis
+                    }
+                    
+                    // The coupon is now applied and will be used in calculateFinalCost
+                } catch (error: any) {
+                    setCouponError(error.data?.error || 'Error applying coupon');
+                    setCouponDiscount(0);
                 }
-            } else
-            {
+            } else {
                 setCouponError(result.validation_message);
                 setCouponDiscount(0);
             }
-        } catch (error: any)
-        {
+        } catch (error: any) {
             setCouponError(error.data?.error || 'Error validating coupon');
             setCouponDiscount(0);
-        } finally
-        {
+        } finally {
             setIsValidatingCoupon(false);
         }
     };
-
 
     const calculateFinalCost = () =>
     {
@@ -244,6 +284,57 @@ export const UploadComplete = ({
     };
 
 
+    // const handleSubmitForAnalysis = async () =>
+    // {
+    //     setShowConfirmDialog(false);
+    //     setIsSubmitting(true);
+
+    //     await new Promise(resolve => setTimeout(resolve, 3000));
+    //     onStartAnalysis(null);
+
+    //     try
+    //     {
+    //         if (!file)
+    //         {
+    //             console.error('No file selected');
+    //             return;
+    //         }
+
+    //         const formData = new FormData();
+    //         formData.append('file', file);
+
+    //         console.log('Uploading file for analysis:', file);
+
+
+    //         const response = await axios.post('https://easemark-upload-check.onrender.com/upload', formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data'
+    //             }
+    //         });
+
+
+    //         const transformedData = transformResponseData(response.data, uploadType);
+    //         localStorage.setItem('analysisData', JSON.stringify(transformedData));
+
+    //         setIsSubmitting(false);
+
+
+    //     } catch (error: any)
+    //     {
+    //         console.error('Error submitting file for analysis:', error);
+    //         setCouponError(
+    //             error?.data?.error === "database is locked"
+    //                 ? "System is busy, please try again in a moment"
+    //                 : error?.data?.error || 'Error performing analysis'
+    //         );
+    //         setIsSubmitting(false);
+    //         return;
+    //     }
+
+    //     setIsSubmitting(false);
+    // };
+
+
     const handleSubmitForAnalysis = async () =>
     {
         setShowConfirmDialog(false);
@@ -265,23 +356,32 @@ export const UploadComplete = ({
 
             console.log('Uploading file for analysis:', file);
 
-
+            // First, get the analysis result
             const response = await axios.post('https://easemark-upload-check.onrender.com/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-
+            // Transform and save the data
             const transformedData = transformResponseData(response.data, uploadType);
-
-            console.log('Analysis data:', transformedData);
-
             localStorage.setItem('analysisData', JSON.stringify(transformedData));
 
+            // Now perform the analysis with credit deduction
+            const finalCreditCost = calculateFinalCost();
+            const analysisType = uploadType === 'thesis' ? 'thesis' : 'code';
+
+            // Prepare analysis data
+            const analysisData = {
+                analysis_type: analysisType,
+                credit_usage: finalCreditCost,
+                ...(couponCode && { coupon_code: couponCode })
+            };
+
+            // Perform the analysis
+            await performAnalysis(analysisData).unwrap();
+
             setIsSubmitting(false);
-
-
         } catch (error: any)
         {
             console.error('Error submitting file for analysis:', error);

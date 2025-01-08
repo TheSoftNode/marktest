@@ -13,10 +13,10 @@ export const useOverviewData = () => {
     const formatTransactionData = (transactions: Transaction[] = []) => {
         return transactions.map(transaction => ({
             id: `${transaction.time_of_use}-${transaction.transaction_type}`,
-            type: transaction.amount > 0 ? 'credit' : 'debit' as 'credit' | 'debit',
+            type: transaction.credit_amount > 0 ? 'credit' : 'debit' as 'credit' | 'debit',
             title: transaction.transaction_type === 'payment' ? 'Credit Purchase' : 'Analysis Usage',
             date: format(new Date(transaction.time_of_use), 'dd MMM yyyy'),
-            amount: Math.abs(transaction.amount),
+            amount: Math.abs(transaction.credit_amount),
             description: transaction.transaction_type === 'payment' 
                 ? 'Credits added to account'
                 : 'Credits used for analysis'
@@ -53,7 +53,7 @@ export const useOverviewData = () => {
             const entry = usageByDate.get(date);
             if (transaction.transaction_type === 'usage') {
                 entry.analyses += 1;
-                entry.credits += Math.abs(transaction.amount);
+                entry.credits += Math.abs(transaction.credit_amount);
             }
         });
 
@@ -62,7 +62,7 @@ export const useOverviewData = () => {
 
     const totalAnalyses = transactionHistory?.filter(t => t.transaction_type === 'usage').length || 0;
     const totalCost = transactionHistory?.reduce((acc, t) => 
-        t.transaction_type === 'usage' ? acc + Math.abs(t.amount) : acc, 0
+        t.transaction_type === 'usage' ? acc + Math.abs(t.credit_amount) : acc, 0
     ) || 0;
 
     return {

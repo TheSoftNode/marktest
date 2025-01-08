@@ -17,7 +17,11 @@ export const analysisApi = createApi({
   }),
   tagTypes: ['Analytics', 'AnalyticsStats'],
   endpoints: (builder) => ({
-    performAnalysis: builder.mutation<PerformAnalysisResponse, { analysis_type: string }>({
+    performAnalysis: builder.mutation<PerformAnalysisResponse, 
+    { analysis_type: string, 
+      credit_usage?: number,
+      coupon_code?: string,
+     }>({
       query: (data) => ({
         url: '/perform/',
         method: 'POST',
