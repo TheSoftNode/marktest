@@ -101,63 +101,6 @@ export const CouponManagement = () =>
         }
     };
 
-    // const renderCouponCard = (couponData: { coupon_details: any, status: string, usage_info?: any }) => (
-    //     <Card key={couponData.coupon_details.id} className="hover:shadow-md transition-shadow">
-    //         <CardHeader className="pb-3">
-    //             <div className="flex justify-between items-start">
-    //                 <div>
-    //                     <CardTitle className="text-lg">{couponData.coupon_details.code}</CardTitle>
-    //                     <CardDescription>
-    //                         {couponData.coupon_details.coupon_type === 'percentage' && `${couponData.coupon_details.discount_value}% off`}
-    //                         {couponData.coupon_details.coupon_type === 'fixed' && `$${couponData.coupon_details.discount_value} off`}
-    //                         {couponData.coupon_details.coupon_type === 'analysis_count' && `${couponData.coupon_details.discount_value} free analyses`}
-    //                     </CardDescription>
-    //                 </div>
-    //                 <Badge
-    //                     variant={
-    //                         couponData.status === 'active' ? 'secondary' :
-    //                             couponData.status === 'expired' ? 'outline' :
-    //                                 couponData.status === 'revoked' ? 'destructive' : 'secondary'
-    //                     }
-    //                     className="flex items-center gap-1"
-    //                 >
-    //                     {couponData.status === 'active' && <Check className="h-3 w-3" />}
-    //                     {couponData.status}
-    //                 </Badge>
-    //             </div>
-    //         </CardHeader>
-    //         <CardContent className="space-y-2">
-    //             <div className="flex justify-between text-sm">
-    //                 <span className="text-muted-foreground">Uses</span>
-    //                 <span>{couponData.usage_info ? `${couponData.usage_info.total_uses}/${couponData.coupon_details.max_uses}` :
-    //                     `${couponData.coupon_details.current_uses}/${couponData.coupon_details.max_uses}`}</span>
-    //             </div>
-    //             <div className="flex justify-between text-sm">
-    //                 <span className="text-muted-foreground flex items-center">
-    //                     <Clock className="h-4 w-4 mr-1" />
-    //                     Expires
-    //                 </span>
-    //                 <span>{format(parseISO(couponData.coupon_details.expires_at), 'MMM dd, yyyy')}</span>
-    //             </div>
-    //             {couponData.status === 'active' && (
-    //                 <div className="flex justify-end mt-4">
-    //                     <Button
-    //                         variant="destructive"
-    //                         size="sm"
-    //                         onClick={() =>
-    //                         {
-    //                             setSelectedCoupon(couponData.coupon_details.code);
-    //                             setIsRevokeDialogOpen(true);
-    //                         }}
-    //                     >
-    //                         Revoke
-    //                     </Button>
-    //                 </div>
-    //             )}
-    //         </CardContent>
-    //     </Card>
-    // );
-
     const renderCouponCard = (couponData: { coupon_details: any, status: string, usage_info?: any }) => (
         <Card key={couponData.coupon_details.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">

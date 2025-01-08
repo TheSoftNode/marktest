@@ -25,7 +25,7 @@ export const couponApi = createApi({
 
         revokeCoupon: builder.mutation<RevokeResponse, RevokeRequestBody>({
             query: (data) => ({
-                url: '/coupons/action/revoke',
+                url: '/coupons/action/revoke/',
                 method: 'POST',
                 body: data,
             }),
@@ -47,7 +47,7 @@ export const couponApi = createApi({
         }),
         createCoupon: builder.mutation<Coupon, Partial<Coupon>>({
             query: (data) => ({
-                url: '/coupons/',
+                url: '/coupons/create/',
                 method: 'POST',
                 body: data,
             }),
@@ -55,7 +55,7 @@ export const couponApi = createApi({
         }),
 
         listCoupons: builder.query<Coupon[], void>({
-            query: () => '/coupons',
+            query: () => '/coupons/list',
             providesTags: ['Coupons'],
         }),
 
