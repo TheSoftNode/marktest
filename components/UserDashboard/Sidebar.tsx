@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Book, FileText, Gift, GitGraphIcon, Home, LogOut, Menu, Settings, User, X } from "lucide-react";
+import { Book, BookmarkIcon, FileText, Gift, GitGraphIcon, Home, LogOut, Menu, Settings, User, X } from "lucide-react";
 import { ChevronDown, ChevronRight, Shield, Users, CreditCard, BarChart2, PieChart } from "lucide-react";
 import { useGetMeQuery, useLogoutMutation } from '@/src/redux/features/auth/authApi';
 import { UserDisplay } from './UserDisplay';
@@ -129,6 +129,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigationItems: ExpandableNavItem[] = [
     { icon: <Home className="h-5 w-5" />, label: "Overview", value: "overview" },
     { icon: <GitGraphIcon className="h-5 w-5" />, label: "Analyse", value: "analyse" },
+    { icon: <BookmarkIcon className="h-5 w-5" />, label: "Saved Analysis", value: "saved-analysis" },
     { icon: <FileText className="h-5 w-5" />, label: "Activity", value: "activity" },
     { icon: <Gift className="h-5 w-5" />, label: "Credits", value: "credits" },
     { icon: <User className="h-5 w-5" />, label: "Usage", value: "usage" },

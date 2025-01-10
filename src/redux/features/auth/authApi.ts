@@ -1,66 +1,53 @@
-import { UserProfile } from '@/types/auth';
+import { AuthResponse, CustomError, SignupRequest, UserProfile } from '@/types/auth';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-type SignupRequest = {
-  email: string;
-  password: string;
-  name: string;
-  user_type: 'student' | 'lecturer' | 'institution';
-} & (
-    | {
-      user_type: 'student';
-      student_profile: {
-        department: string;
-        course_of_study: string;
-      };
+const baseQuery = fetchBaseQuery({
+  baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/users`,
+  prepareHeaders: (headers) =>
+  {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token)
+    {
+      headers.set('authorization', `Bearer ${token}`);
     }
-    | {
-      user_type: 'lecturer';
-      lecturer_profile: {
-        department: string;
-      };
-    }
-    | {
-      user_type: 'institution';
-      institution_profile: {
-        institution_name: string;
-        institution_type: string;
-        contact_person_name: string;
-      };
-    }
-  );
+    return headers;
+  },
+});
 
-interface AuthResponse
-{
-  status: string;
-  access: string;
-  user: {
-    email: string;
-    name: string;
-    user_type: string;
-    is_verified: boolean;
-    role: string;
-  };
-  message?: string;
-  warning?: string;
-}
+
+const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result?.error) {
+      const error = result.error as CustomError;
+      if (error.data?.code === "token_not_valid") {
+          // Try to refresh token
+          const token = localStorage.getItem('token');
+          
+          // Attempt to get a new token
+          const refreshResult = await api.dispatch(
+              authApi.endpoints.refreshToken.initiate({ access_token: token || '' })
+          );
+
+          if (refreshResult.data) {
+              // Retry the original request with new token
+              result = await baseQuery(args, api, extraOptions);
+          } else {
+              // If refresh failed, redirect to login
+              localStorage.removeItem('token');
+              window.location.href = '/login';
+          }
+      }
+  }
+
+  return result;
+};
+
 
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/users`,
-    prepareHeaders: (headers) =>
-    {
-      // Get token from localStorage instead of Redux state
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      if (token)
-      {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Auth'],
   endpoints: (builder) => ({
     signup: builder.mutation<AuthResponse, SignupRequest>({

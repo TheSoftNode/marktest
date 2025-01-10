@@ -18,14 +18,14 @@ export interface User
   role: string;
 }
 
-export interface AuthResponse
-{
-  status: string;
-  access: string;
-  user: User;
-  message?: string;
-  warning?: string;
-}
+// export interface AuthResponse
+// {
+//   status: string;
+//   access: string;
+//   user: User;
+//   message?: string;
+//   warning?: string;
+// }
 
 export interface BasicInfo
 {
@@ -71,4 +71,64 @@ export interface UserProfile {
     institution_type: string;
     contact_person_name: string;
   } | null;
+}
+
+
+export type SignupRequest = {
+  email: string;
+  password: string;
+  name: string;
+  user_type: 'student' | 'lecturer' | 'institution';
+} & (
+    | {
+      user_type: 'student';
+      student_profile: {
+        department: string;
+        course_of_study: string;
+      };
+    }
+    | {
+      user_type: 'lecturer';
+      lecturer_profile: {
+        department: string;
+      };
+    }
+    | {
+      user_type: 'institution';
+      institution_profile: {
+        institution_name: string;
+        institution_type: string;
+        contact_person_name: string;
+      };
+    }
+  );
+
+export interface AuthResponse
+{
+  status: string;
+  access: string;
+  user: {
+    email: string;
+    name: string;
+    user_type: string;
+    is_verified: boolean;
+    role: string;
+  };
+  message?: string;
+  warning?: string;
+}
+
+export interface TokenError {
+  detail: string;
+  code: string;
+  messages: {
+      token_class: string;
+      token_type: string;
+      message: string;
+  }[];
+}
+
+export interface CustomError {
+  data: TokenError;
+  status: number;
 }

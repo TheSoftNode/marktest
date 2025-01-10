@@ -69,8 +69,10 @@ export interface PerformAnalysisResponse
 interface BaseAnalysis {
     user: string;  // User ID
     file_name: string;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
+    id? : string;
+    overall_mark?: number;
     analysis_type: 'code' | 'thesis';
     message: string;
     is_archived: boolean;
@@ -105,6 +107,8 @@ export interface ThesisAnalysis extends BaseAnalysis {
     general_feedback: string;
 }
 
+
+
 // Code Analysis Interface
 export interface CodeAnalysis extends BaseAnalysis {
     // Marking fields
@@ -120,4 +124,54 @@ export interface CodeAnalysis extends BaseAnalysis {
     efficiency_feedback: string;
     error_handling_feedback: string;
     modularity_feedback: string;
+}
+
+
+interface BaseAnalysisResponse {
+  id: number;
+  user: number;
+  file_name: string;
+  created_at: string;
+  updated_at: string;
+  analysis_type: 'thesis' | 'code';
+  message: string;
+  is_archived: boolean;
+  overall_mark: number;
+}
+
+interface ThesisAnalysisResponse extends BaseAnalysisResponse {
+  analysis_type: 'thesis';
+  abstract_mark: number;
+  introduction_mark: number;
+  literature_review_mark: number;
+  methodology_mark: number;
+  results_findings_mark: number;
+  conclusions_recommendations_mark: number;
+  references_mark: number;
+  abstract_feedback: string;
+  introduction_feedback: string;
+  literature_review_feedback: string;
+  methodology_feedback: string;
+  results_findings_feedback: string;
+  conclusions_recommendations_feedback: string;
+  references_feedback: string;
+}
+
+interface CodeAnalysisResponse extends BaseAnalysisResponse {
+  analysis_type: 'code';
+  readability_mark: number;
+  functionality_mark: number;
+  efficiency_mark: number;
+  error_handling_mark: number;
+  modularity_mark: number;
+  readability_feedback: string;
+  functionality_feedback: string;
+  efficiency_feedback: string;
+  error_handling_feedback: string;
+  modularity_feedback: string;
+}
+
+export interface AnalysisHistoryResponse {
+  thesis: ThesisAnalysisResponse[];
+  code: CodeAnalysisResponse[];
 }

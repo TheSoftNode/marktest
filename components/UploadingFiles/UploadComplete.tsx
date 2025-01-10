@@ -269,6 +269,7 @@ export const UploadComplete = ({
                 analysis_type: "code",
                 Reason_for_mark_code: parseKeyValuePairs(data.Reason_for_mark_code),
                 marking_code: parseKeyValuePairs(data.marking_code),
+                file_name: data.file_name,
                 message_code: data.message_code
             };
         } else if (type === 'thesis')
@@ -277,62 +278,12 @@ export const UploadComplete = ({
                 analysis_type: "thesis",
                 Reason_for_mark: parseKeyValuePairs(data.Reason_for_mark),
                 marking: parseKeyValuePairs(data.marking),
+                file_name: data.file_name,
                 message: data.message
             };
         }
         return data;
     };
-
-
-    // const handleSubmitForAnalysis = async () =>
-    // {
-    //     setShowConfirmDialog(false);
-    //     setIsSubmitting(true);
-
-    //     await new Promise(resolve => setTimeout(resolve, 3000));
-    //     onStartAnalysis(null);
-
-    //     try
-    //     {
-    //         if (!file)
-    //         {
-    //             console.error('No file selected');
-    //             return;
-    //         }
-
-    //         const formData = new FormData();
-    //         formData.append('file', file);
-
-    //         console.log('Uploading file for analysis:', file);
-
-
-    //         const response = await axios.post('https://easemark-upload-check.onrender.com/upload', formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data'
-    //             }
-    //         });
-
-
-    //         const transformedData = transformResponseData(response.data, uploadType);
-    //         localStorage.setItem('analysisData', JSON.stringify(transformedData));
-
-    //         setIsSubmitting(false);
-
-
-    //     } catch (error: any)
-    //     {
-    //         console.error('Error submitting file for analysis:', error);
-    //         setCouponError(
-    //             error?.data?.error === "database is locked"
-    //                 ? "System is busy, please try again in a moment"
-    //                 : error?.data?.error || 'Error performing analysis'
-    //         );
-    //         setIsSubmitting(false);
-    //         return;
-    //     }
-
-    //     setIsSubmitting(false);
-    // };
 
 
     const handleSubmitForAnalysis = async () =>
@@ -363,9 +314,13 @@ export const UploadComplete = ({
                 }
             });
 
+            console.log('Response:', response.data);
+
             // Transform and save the data
             const transformedData = transformResponseData(response.data, uploadType);
             localStorage.setItem('analysisData', JSON.stringify(transformedData));
+
+            console.log('Analysis data:', transformedData);
 
             // Now perform the analysis with credit deduction
             const finalCreditCost = calculateFinalCost();

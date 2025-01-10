@@ -1,4 +1,4 @@
-import { Analysis, AnalysisStats, AnalysisType, CodeAnalysis, GlobalAnalytics, PerformAnalysisResponse, ThesisAnalysis, UserAnalytics } from '@/types/analysis';
+import { Analysis, AnalysisHistoryResponse, AnalysisStats, AnalysisType, CodeAnalysis, GlobalAnalytics, PerformAnalysisResponse, ThesisAnalysis, UserAnalytics } from '@/types/analysis';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const analysisApi = createApi({
@@ -75,7 +75,6 @@ export const analysisApi = createApi({
 
     saveAnalysisResult: builder.mutation<ThesisAnalysis | CodeAnalysis, {
       analysis_type: 'thesis' | 'code';
-      file_name?: string;
       marking: Record<string, number>;
       Reason_for_mark: Record<string, string>;
     }>({
@@ -85,6 +84,11 @@ export const analysisApi = createApi({
         body: data,
       }),
       invalidatesTags: ['Analytics'],
+    }),
+
+    getMyAnalysisHistory: builder.query<AnalysisHistoryResponse, void>({
+      query: () => '/my-history/',
+      providesTags: ['Analytics'],
     }),
 
     updateAnalysis: builder.mutation<ThesisAnalysis | CodeAnalysis, {
@@ -114,4 +118,5 @@ export const {
   useGetAnalysisRecordHistoryQuery,
   useSaveAnalysisResultMutation,
   useUpdateAnalysisMutation,
+  useGetMyAnalysisHistoryQuery,
 } = analysisApi;

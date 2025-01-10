@@ -35,6 +35,7 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { AnalysisManagement } from '@/components/AdminDashboard/AnalysisManagement';
 import { CouponManagement } from '@/components/AdminDashboard/CouponManagement';
 import { CreditManagement } from '@/components/AdminDashboard/CreditManagement';
+import SavedAnalysisPage from '@/components/UserDashboard/Analysis/SaveAnalysis';
 
 
 
@@ -304,6 +305,9 @@ const DashboardPage: React.FC = () =>
 
       case 'manage-credits':
         return <CreditManagement />;
+
+      case 'saved-analysis':
+        return <SavedAnalysisPage />
 
       case 'credits':
         return (
