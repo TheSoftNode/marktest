@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Search, Filter, FileText, Code, Calendar } from 'lucide-react';
+import { Search, FileText, Code, Calendar } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
+import
+{
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
+import
+{
   Table,
   TableBody,
   TableCell,
@@ -19,66 +21,115 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
+import { Eye } from 'lucide-react'; // Add this import
+import
+{
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// import
+//   {
+//     DropdownMenu,
+//     DropdownMenuContent,
+//     DropdownMenuItem,
+//     DropdownMenuTrigger,
+//   } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMyAnalysisHistoryQuery } from '@/src/redux/features/dashboard/analysisApi';
+import
+{
+  ThesisAnalysisResponse,
+  CodeAnalysisResponse
+} from '@/types/analysis';
+import AnalysisDetailPage from './AnalysisDetailPage';
 
-const SavedAnalysisPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
-  
+type ViewType = 'list' | 'detail';
+type SortType = 'newest' | 'oldest';
+type FilterType = 'all' | 'thesis' | 'code';
+type AnalysisResponse = ThesisAnalysisResponse | CodeAnalysisResponse;
+
+const SavedAnalysisPage: React.FC = () =>
+{
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<FilterType>('all');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [currentView, setCurrentView] = useState<ViewType>('list');
+  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisResponse | null>(null);
+
   const { data: analysesData, isLoading, error } = useGetMyAnalysisHistoryQuery();
 
-  console.log(analysesData);
-
-
-  const filteredAnalyses = React.useMemo(() => {
+  const filteredAnalyses = React.useMemo(() =>
+  {
     if (!analysesData) return [];
-    
-    // Combine thesis and code arrays
-    const allAnalyses = [...analysesData.thesis, ...analysesData.code];
-    
+
+    const allAnalyses: AnalysisResponse[] = [...analysesData.thesis, ...analysesData.code];
+
     return allAnalyses
-      .filter(analysis => {
+      .filter(analysis =>
+      {
         const matchesSearch = analysis.file_name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = typeFilter === 'all' || analysis.analysis_type === typeFilter;
         return matchesSearch && matchesType;
       })
-      .sort((a, b) => {
-        if (sortBy === 'newest') {
+      .sort((a, b) =>
+      {
+        if (sortBy === 'newest')
+        {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         }
         return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       });
   }, [analysesData, searchTerm, typeFilter, sortBy]);
 
+  const handleViewDetails = (analysis: AnalysisResponse): void =>
+  {
+    setSelectedAnalysis(analysis);
+    setCurrentView('detail');
+  };
 
-  const getAnalysisBadgeColor = (type: string) => {
-    return type === 'thesis' 
-      ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-200' 
+  const handleBackToList = (): void =>
+  {
+    setCurrentView('list');
+    setSelectedAnalysis(null);
+  };
+
+  const getAnalysisBadgeColor = (type: string): string =>
+  {
+    return type === 'thesis'
+      ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-200'
       : 'bg-gradient-to-r from-violet-50 to-blue-50 text-violet-700 border border-violet-200';
   };
 
-  const getOverallMarkColor = (mark: number) => {
+  const getOverallMarkColor = (mark: number): string =>
+  {
     if (mark >= 70) return 'text-emerald-600';
     if (mark >= 50) return 'text-amber-600';
     return 'text-rose-600';
   };
 
-  if (error) {
+  if (error)
+  {
     return (
       <div className="flex items-center justify-center h-full">
         <Card className="p-6 border-red-200">
           <p className="text-red-500">Error loading analyses. Please try again later.</p>
         </Card>
       </div>
+    );
+  }
+
+  if (currentView === 'detail' && selectedAnalysis)
+  {
+    return (
+      <AnalysisDetailPage
+        analysis={selectedAnalysis}
+        onBack={handleBackToList}
+      />
     );
   }
 
@@ -104,10 +155,10 @@ const SavedAnalysisPage = () => {
                   placeholder="Search analyses..."
                   className="pl-8 border-indigo-200 focus:border-indigo-400 focus:ring-indigo-300"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={typeFilter} onValueChange={(value: FilterType) => setTypeFilter(value)}>
                 <SelectTrigger className="w-[180px] border-indigo-200">
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
@@ -117,7 +168,7 @@ const SavedAnalysisPage = () => {
                   <SelectItem value="code">Code</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={(value: SortType) => setSortBy(value)}>
                 <SelectTrigger className="w-[180px] border-indigo-200">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -138,7 +189,7 @@ const SavedAnalysisPage = () => {
                 <TableRow className="bg-gradient-to-r from-violet-50 to-indigo-50 hover:from-violet-100 hover:to-indigo-100">
                   <TableHead className="text-indigo-600">File Name</TableHead>
                   <TableHead className="text-indigo-600">Type</TableHead>
-                  <TableHead className="text-indigo-600">Overall Mark</TableHead>
+                  {/* <TableHead className="text-indigo-600">Overall Mark</TableHead> */}
                   <TableHead className="text-indigo-600">Date</TableHead>
                   <TableHead className="text-indigo-600 text-right">Actions</TableHead>
                 </TableRow>
@@ -168,8 +219,8 @@ const SavedAnalysisPage = () => {
                   </TableRow>
                 ) : (
                   filteredAnalyses.map((analysis) => (
-                    <TableRow 
-                      key={analysis.created_at} 
+                    <TableRow
+                      key={analysis.id}
                       className="cursor-pointer hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-indigo-50/50 transition-colors"
                     >
                       <TableCell className="font-medium text-indigo-900">{analysis.file_name}</TableCell>
@@ -183,18 +234,18 @@ const SavedAnalysisPage = () => {
                           {analysis.analysis_type}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <span className={`font-medium ${getOverallMarkColor(analysis.overall_mark)}`}>
                           {analysis.overall_mark}%
                         </span>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className="flex items-center text-sm text-indigo-600">
                           <Calendar className="mr-1 h-3 w-3" />
-                          {format(new Date(analysis.created_at ?? 0), 'MMM dd, yyyy')}
+                          {format(new Date(analysis.created_at), 'MMM dd, yyyy')}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      {/* <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button 
@@ -206,7 +257,10 @@ const SavedAnalysisPage = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="text-indigo-600 focus:text-indigo-700 focus:bg-indigo-50">
+                            <DropdownMenuItem 
+                              className="text-indigo-600 focus:text-indigo-700 focus:bg-indigo-50"
+                              onClick={() => handleViewDetails(analysis)}
+                            >
                               View Details
                             </DropdownMenuItem>
                             <DropdownMenuItem className="text-indigo-600 focus:text-indigo-700 focus:bg-indigo-50">
@@ -217,6 +271,25 @@ const SavedAnalysisPage = () => {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                      </TableCell> */}
+                      <TableCell className="text-right">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                onClick={() => handleViewDetails(analysis)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View Details</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                     </TableRow>
                   ))

@@ -10,14 +10,17 @@ import { UploadComplete } from '@/components/UploadingFiles/UploadComplete';
 import { AnalysisProgress } from '@/components/UploadingFiles/AnalysisProgress';
 import { ErrorDisplay } from '@/components/UploadingFiles/ErrorDisplay';
 import AnalysisDashboard from '@/components/AnalysisDashboard/AnalysisDashboard';
+import GradeLevelSelector from './GradeLevelSelector';
+import { Button } from '../ui/button';
+import { ChevronLeft } from 'lucide-react';
 
-type UploadState = 'upload' | 'uploading' | 'uploadComplete' | 'analyzing' | 'complete' | 'error';
+type UploadState = 'gradeSelect' | 'upload' | 'uploading' | 'uploadComplete' | 'analyzing' | 'complete' | 'error';
 type UploadType = 'thesis' | 'code';
 
 
 const AnalysisFlow = () =>
 {
-    const [currentState, setCurrentState] = useState<UploadState>('upload');
+    const [currentState, setCurrentState] = useState<UploadState>('gradeSelect');
     const [uploadType, setUploadType] = useState<UploadType>('thesis');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState('');
@@ -92,11 +95,27 @@ const AnalysisFlow = () =>
         setCurrentState('error');
     };
 
+    // const resetUpload = () =>
+    // {
+    //     setCurrentState('upload');
+    //     setUploadProgress(0);
+    //     // setAnalysisProgress(0);
+    //     setSelectedFile(null);
+    //     setError('');
+    // };
     const resetUpload = () =>
     {
-        setCurrentState('upload');
+        // If we're in error state and there's a grade level error message,
+        // go back to grade selection instead of upload state
+        if (currentState === 'error' &&
+            error.includes('administrator'))
+        {
+            setCurrentState('gradeSelect');
+        } else
+        {
+            setCurrentState('upload');
+        }
         setUploadProgress(0);
-        // setAnalysisProgress(0);
         setSelectedFile(null);
         setError('');
     };
@@ -127,8 +146,31 @@ const AnalysisFlow = () =>
                             exit={{ opacity: 0 }}
                             className="container mx-auto px-4 max-w-3xl relative"
                         >
+                            {currentState === 'gradeSelect' && (
+                                <GradeLevelSelector
+                                    onLevelSelect={(result) =>
+                                    {
+                                        if (result.allowed)
+                                        {
+                                            setCurrentState('upload');
+                                        } else
+                                        {
+                                            handleError(result.message);
+                                        }
+                                    }}
+                                />
+                            )}
+
                             {currentState === 'upload' && (
                                 <>
+                                    <Button
+                                        onClick={() => setCurrentState('gradeSelect')}
+                                        variant="ghost"
+                                        className="mb-4 text-violet-600 hover:text-violet-700"
+                                    >
+                                        <ChevronLeft className="mr-2 h-4 w-4" />
+                                        Back to Grade Selection
+                                    </Button>
                                     <UploadTypeSelector
                                         uploadType={uploadType}
                                         onTypeChange={setUploadType}

@@ -8,9 +8,6 @@ import SummaryCharts from "./SummaryCharts";
 import ScoreItem from "./ScoreItem";
 import ScoreSummaryCard from "./ScoreSummaryCard";
 
-import { Button } from "../ui/button";
-import { Save, Loader2 } from 'lucide-react';
-
 
 export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
     data,
@@ -26,44 +23,86 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
 
     const markingData = uploadType === 'code' ? data.marking_code : data.marking;
     const reasonData = uploadType === 'code' ? data.Reason_for_mark_code : data.Reason_for_mark;
-    // const [saveAnalysis] = useSaveAnalysisResultMutation();
 
-    const handleSave = useCallback(async () => console.log('Save analysis'), []);
+    // useEffect(() =>
+    // {
+    //     if (!markingData) return;
 
+    //     const totalRawScore = Object.values(markingData).reduce((sum, score) => sum + Number(score), 0);
 
+    //     const expectedScore = Object.keys(markingData).length * 100;
 
-    
+    //     const realScore = (totalRawScore / expectedScore) * 100;
+    //     setActualScore(realScore)
+
+    //     const newChartData = Object.entries(markingData).map(([key, score]) =>
+    //     {
+    //         const numericScore = Number(score);
+    //         const calculatedScore = numericScore * (100 / expectedScore);
+    //         return {
+    //             name: key.replace(/_/g, ' '),
+    //             score: numericScore,
+    //             calculatedScore
+    //         };
+    //     });
+
+    //     setChartData(newChartData);
+    //     setTotalScore(totalRawScore);
+    // }, [markingData]);
 
     useEffect(() =>
     {
         if (!markingData) return;
 
+        // Define weights based on the analysis type
+        const getDefaultWeight = (key: string): number =>
+        {
+            // These weights match the image (converted to decimal)
+            const weightMap: Record<string, number> = {
+                abstract: 0.05,
+                introduction: 0.05,
+                literature_review: 0.2,
+                methodology: 0.1,
+                "results & findings": 0.25,
+                "conclusions & recommendations": 0.1,
+                references: 0.05,
+                // Add code analysis weights if needed
+                readability: 0.2,
+                functionality: 0.2,
+                efficiency: 0.2,
+                error_handling: 0.2,
+                modularity: 0.2,
+            };
+
+            // Convert the key to snake_case for matching
+            // const normalizedKey = key.toLowerCase().replace(/ /g, '_');
+            const normalizedKey = key.toLowerCase();
+            return weightMap[normalizedKey] || 0.1; // default weight if not found
+        };
+
         // Calculate total raw score
         const totalRawScore = Object.values(markingData).reduce((sum, score) => sum + Number(score), 0);
 
-        // Calculate expected score (number of keys * 100)
-        const expectedScore = Object.keys(markingData).length * 100;
-
-        const realScore = (totalRawScore / expectedScore) * 100;
-        setActualScore(realScore)
-
-        // Calculate scores and percentages
+        // Calculate scores and percentages with weights
         const newChartData = Object.entries(markingData).map(([key, score]) =>
         {
             const numericScore = Number(score);
-            const calculatedScore = numericScore * (100 / expectedScore);
+            const weight = getDefaultWeight(key);
             return {
                 name: key.replace(/_/g, ' '),
                 score: numericScore,
-                calculatedScore
+                calculatedScore: numericScore * weight,
+                weight: weight * 100 // Convert to percentage for display
             };
         });
 
+        // Calculate actual score using weights
+        const realScore = newChartData.reduce((sum, item) => sum + item.calculatedScore, 0);
+
+        setActualScore(realScore);
         setChartData(newChartData);
         setTotalScore(totalRawScore);
     }, [markingData]);
-
-
 
     const handleDownload = useCallback(async () =>
     {
@@ -128,7 +167,7 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                     onBack={onBack}
                 />
 
-               
+
 
             </div>
 
@@ -150,7 +189,7 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                 <SummaryCharts data={chartData} />
 
 
-                <div className="flex gap-8 items-start lg:flex-row flex-col">
+                {/* <div className="flex gap-8 items-start lg:flex-row flex-col">
                     <div className="space-y-6">
                         {chartData.map((item) => (
                             <ScoreItem
@@ -164,6 +203,27 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                     </div>
 
                     <ScoreSummaryCard chartData={chartData} actualScore={actualScore} totalScore={totalScore} />
+                </div> */}
+                <div className="space-y-8">
+                    <div className="w-full space-y-6">
+                        {chartData.map((item) => (
+                            <ScoreItem
+                                key={item.name}
+                                label={item.name}
+                                score={item.score}
+                                reason={reasonData[item.name]}
+                                calculatedScore={item.calculatedScore}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="w-full">
+                        <ScoreSummaryCard
+                            chartData={chartData}
+                            actualScore={actualScore}
+                            totalScore={totalScore}
+                        />
+                    </div>
                 </div>
 
             </div>

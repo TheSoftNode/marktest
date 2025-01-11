@@ -139,7 +139,7 @@ interface BaseAnalysisResponse {
   overall_mark: number;
 }
 
-interface ThesisAnalysisResponse extends BaseAnalysisResponse {
+export interface ThesisAnalysisResponse extends BaseAnalysisResponse {
   analysis_type: 'thesis';
   abstract_mark: number;
   introduction_mark: number;
@@ -157,7 +157,7 @@ interface ThesisAnalysisResponse extends BaseAnalysisResponse {
   references_feedback: string;
 }
 
-interface CodeAnalysisResponse extends BaseAnalysisResponse {
+export interface CodeAnalysisResponse extends BaseAnalysisResponse {
   analysis_type: 'code';
   readability_mark: number;
   functionality_mark: number;
@@ -174,4 +174,38 @@ interface CodeAnalysisResponse extends BaseAnalysisResponse {
 export interface AnalysisHistoryResponse {
   thesis: ThesisAnalysisResponse[];
   code: CodeAnalysisResponse[];
+}
+
+
+export type UpdateAnalysisPayload = {
+  analysis_id: number;
+  analysis_type: 'thesis' | 'code';
+  data: {
+    // Only include the fields that can be updated
+    abstract_mark?: number;
+    introduction_mark?: number;
+    literature_review_mark?: number;
+    methodology_mark?: number;
+    results_findings_mark?: number;
+    conclusions_recommendations_mark?: number;
+    references_mark?: number;
+    abstract_feedback?: string;
+    introduction_feedback?: string;
+    literature_review_feedback?: string;
+    methodology_feedback?: string;
+    results_findings_feedback?: string;
+    conclusions_recommendations_feedback?: string;
+    references_feedback?: string;
+    // Code analysis fields
+    readability_mark?: number;
+    functionality_mark?: number;
+    efficiency_mark?: number;
+    error_handling_mark?: number;
+    modularity_mark?: number;
+    readability_feedback?: string;
+    functionality_feedback?: string;
+    efficiency_feedback?: string;
+    error_handling_feedback?: string;
+    modularity_feedback?: string;
+  };
 }

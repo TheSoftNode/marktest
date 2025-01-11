@@ -161,42 +161,53 @@ export const UploadComplete = ({
     //     }
     // };
 
-    const handleCouponValidation = async (code: string) => {
+    const handleCouponValidation = async (code: string) =>
+    {
         if (!code) return;
-    
+
         setIsValidatingCoupon(true);
         setCouponError('');
-    
-        try {
+
+        try
+        {
             const result = await validateCoupon({ code }).unwrap();
-    
-            if (result.is_applicable) {
+
+            if (result.is_applicable)
+            {
                 // Apply the coupon if it's valid
-                try {
+                try
+                {
                     await applyCoupon({ code }).unwrap();
-                    
+
                     // Extract the numeric value from discount_type
-                    if (result.coupon_type === 'percentage') {
+                    if (result.coupon_type === 'percentage')
+                    {
                         setCouponDiscount(parseFloat(result.discount_value));
-                    } else if (result.coupon_type === 'fixed') {
+                    } else if (result.coupon_type === 'fixed')
+                    {
                         setCouponDiscount(parseFloat(result.discount_value));
-                    } else if (result.coupon_type === 'analysis_count') {
+                    } else if (result.coupon_type === 'analysis_count')
+                    {
                         setCouponDiscount(100); // Free analysis
                     }
-                    
+
                     // The coupon is now applied and will be used in calculateFinalCost
-                } catch (error: any) {
+                } catch (error: any)
+                {
                     setCouponError(error.data?.error || 'Error applying coupon');
                     setCouponDiscount(0);
                 }
-            } else {
+            } else
+            {
                 setCouponError(result.validation_message);
                 setCouponDiscount(0);
             }
-        } catch (error: any) {
+        } catch (error: any)
+        {
             setCouponError(error.data?.error || 'Error validating coupon');
             setCouponDiscount(0);
-        } finally {
+        } finally
+        {
             setIsValidatingCoupon(false);
         }
     };

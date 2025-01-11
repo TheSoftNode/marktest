@@ -32,7 +32,7 @@ export interface ChartDataItem {
   name: string;
   score: number;
   calculatedScore: number;
-  // weightedScore: number;
+  weight: number;
 }
 
 export interface ActionButtonsProps {

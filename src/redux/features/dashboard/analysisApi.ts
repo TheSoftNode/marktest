@@ -1,4 +1,4 @@
-import { Analysis, AnalysisHistoryResponse, AnalysisStats, AnalysisType, CodeAnalysis, GlobalAnalytics, PerformAnalysisResponse, ThesisAnalysis, UserAnalytics } from '@/types/analysis';
+import { Analysis, AnalysisHistoryResponse, AnalysisStats, AnalysisType, CodeAnalysis, CodeAnalysisResponse, GlobalAnalytics, PerformAnalysisResponse, ThesisAnalysis, ThesisAnalysisResponse, UpdateAnalysisPayload, UserAnalytics } from '@/types/analysis';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const analysisApi = createApi({
@@ -17,18 +17,19 @@ export const analysisApi = createApi({
   }),
   tagTypes: ['Analytics', 'AnalyticsStats'],
   endpoints: (builder) => ({
-    performAnalysis: builder.mutation<PerformAnalysisResponse, 
-    { analysis_type: string, 
-      credit_usage?: number,
-      coupon_code?: string,
-     }>({
-      query: (data) => ({
-        url: '/perform/',
-        method: 'POST',
-        body: data,
+    performAnalysis: builder.mutation<PerformAnalysisResponse,
+      {
+        analysis_type: string,
+        credit_usage?: number,
+        coupon_code?: string,
+      }>({
+        query: (data) => ({
+          url: '/perform/',
+          method: 'POST',
+          body: data,
+        }),
+        invalidatesTags: ['Analytics', 'AnalyticsStats'],
       }),
-      invalidatesTags: ['Analytics', 'AnalyticsStats'],
-    }),
 
     getUserAnalytics: builder.query<UserAnalytics, void>({
       query: () => '/user-analytics/',
@@ -91,16 +92,46 @@ export const analysisApi = createApi({
       providesTags: ['Analytics'],
     }),
 
-    updateAnalysis: builder.mutation<ThesisAnalysis | CodeAnalysis, {
-      analysis_id: number;
-      analysis_type: 'thesis' | 'code';
-      data: Partial<ThesisAnalysis | CodeAnalysis>;
-    }>({
-      query: ({ analysis_id, ...data }) => ({
+    updateAnalysis: builder.mutation<ThesisAnalysisResponse | CodeAnalysisResponse, UpdateAnalysisPayload>({
+      query: ({ analysis_id, data }) => ({
         url: `/single/${analysis_id}/update/`,
         method: 'PUT',
         body: data,
       }),
+      invalidatesTags: ['Analytics'],
+    }),
+
+    deleteAnalysis: builder.mutation<void, {
+      analysis_id: number;
+      analysis_type: 'thesis' | 'code';
+    }>({
+      query: ({ analysis_id, analysis_type }) => ({
+        url: `/single/${analysis_id}/delete/`,
+        method: 'DELETE',
+        params: { analysis_type }
+      }),
+
+      async onQueryStarted({ analysis_id }, { dispatch, queryFulfilled })
+      {
+        // Get the current cache data
+        const patchResult = dispatch(
+          analysisApi.util.updateQueryData('getMyAnalysisHistory', undefined, (draft) =>
+          {
+            // Remove the item from both thesis and code arrays
+            draft.thesis = draft.thesis.filter(item => item.id !== analysis_id);
+            draft.code = draft.code.filter(item => item.id !== analysis_id);
+          })
+        );
+
+        try
+        {
+          await queryFulfilled;
+        } catch
+        {
+          // If the deletion fails, revert the optimistic update
+          patchResult.undo();
+        }
+      },
       invalidatesTags: ['Analytics'],
     }),
 
@@ -119,4 +150,5 @@ export const {
   useSaveAnalysisResultMutation,
   useUpdateAnalysisMutation,
   useGetMyAnalysisHistoryQuery,
+  useDeleteAnalysisMutation,
 } = analysisApi;

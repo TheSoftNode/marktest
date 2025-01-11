@@ -15,15 +15,18 @@ const baseQuery = fetchBaseQuery({
 });
 
 
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) =>
+{
   let result = await baseQuery(args, api, extraOptions);
+
+  console.log(result);
 
   if (result?.error) {
       const error = result.error as CustomError;
       if (error.data?.code === "token_not_valid") {
           // Try to refresh token
           const token = localStorage.getItem('token');
-          
+
           // Attempt to get a new token
           const refreshResult = await api.dispatch(
               authApi.endpoints.refreshToken.initiate({ access_token: token || '' })
