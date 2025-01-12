@@ -98,24 +98,27 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
     }));
   };
 
-  const handleDelete = async () => {
-    try {
+  const handleDelete = async () =>
+  {
+    try
+    {
       // Show loading state immediately
       setIsDeleteDialogOpen(false);
-      
+
       // Navigate back first (better UX)
       onBack();
-  
+
       // Then perform deletion
       await deleteAnalysis({
         analysis_id: editedData.id,
         analysis_type: editedData.analysis_type
       }).unwrap();
-      
+
       // Show success message
       toast.success('Analysis deleted successfully');
-  
-    } catch (error) {
+
+    } catch (error)
+    {
       console.error('Error deleting analysis:', error);
       toast.error('Failed to delete analysis');
     }
@@ -336,7 +339,13 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
                 analysis={editedData}
                 marking={marking}
                 feedback={feedback}
-                totalScore={totalScore}
+                // totalScore={totalScore}
+                totalScore={
+                  Object.entries(marking)
+                    .filter(([key]) => key.toLowerCase() !== 'overall')
+                    .reduce((sum, [_, score]) => sum + score, 0)
+                }
+                // totalScore={Object.values(marking).reduce((sum, score) => sum + score, 0)}
                 chartData={chartData}
               />
             </div>
@@ -346,7 +355,13 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
               <ScoreSummaryCard
                 chartData={chartData}
                 actualScore={totalScore}
-                totalScore={totalScore}
+                // totalScore={totalScore}
+                // totalScore={Object.values(marking).reduce((sum, score) => sum + score, 0)}
+                totalScore={
+                  Object.entries(marking)
+                    .filter(([key]) => key.toLowerCase() !== 'overall')
+                    .reduce((sum, [_, score]) => sum + score, 0)
+                }
                 isEditing={isEditing}
                 onScoreChange={handleScoreChange}
               // onWeightChange={handleWeightChange}
@@ -360,7 +375,13 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
                   analysis={editedData}
                   marking={marking}
                   feedback={feedback}
-                  totalScore={totalScore}
+                  totalScore={
+                    Object.entries(marking)
+                      .filter(([key]) => key.toLowerCase() !== 'overall')
+                      .reduce((sum, [_, score]) => sum + score, 0)
+                  }
+                  // totalScore={totalScore}
+                  // totalScore={Object.values(marking).reduce((sum, score) => sum + score, 0)}
                   chartData={chartData}
                 />
               </div>
@@ -375,7 +396,7 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
                 .map(([field, score]) => (
                   <Card key={field} className="bg-white/90 backdrop-blur-sm border border-indigo-100">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-semibold capitalize">
+                      <CardTitle className="text-lg font-semibold capitalize text-indigo-700">
                         {field.replace(/_/g, ' ')}
                       </CardTitle>
                     </CardHeader>
@@ -411,7 +432,16 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
               <ScoreSummaryCard
                 chartData={chartData}
                 actualScore={totalScore}
-                totalScore={totalScore}
+                // totalScore={totalScore}
+                totalScore={
+                  Object.entries(marking)
+                    .filter(([key]) => key.toLowerCase() !== 'overall')
+                    .reduce((sum, [_, score]) => sum + score, 0)
+                }
+                // totalScore={
+                //   Object.values(marking)
+                //   .reduce((sum, score) => sum + score, 0)
+                // }
                 isEditing={isEditing}
                 onScoreChange={handleScoreChange}
               />

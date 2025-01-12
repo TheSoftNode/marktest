@@ -6,7 +6,8 @@ import { ArrowLeft, Download, Loader2, Mail, MessageCircleMore, Printer, Save } 
 import { useSaveAnalysisResultMutation } from '@/src/redux/features/dashboard/analysisApi';
 import toast from 'react-hot-toast';
 import { useState } from "react";
-import { set } from "date-fns";
+import { useRouter } from "next/navigation";
+import AnalysisDetailPage from "../UserDashboard/Analysis/AnalysisDetailPage";
 
 interface TransformedData
 {
@@ -20,6 +21,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ onDownload, onPrint, onSh
 {
     const [saveAnalysisResult] = useSaveAnalysisResultMutation();
     const [saving, setSaving] = useState(false);
+
+    const router = useRouter();
 
     const transformKeys = (obj: Record<string, any>): Record<string, any> =>
     {
@@ -83,6 +86,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ onDownload, onPrint, onSh
 
             // Show success message
             toast.success('Analysis saved successfully');
+
 
             setSaving(false);
 

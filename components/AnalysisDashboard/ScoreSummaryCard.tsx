@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 
 interface ScoreItem
 {
+    id?: string;
     name: string;
     score: number;
     calculatedScore: number;
@@ -39,26 +40,27 @@ const ScoreSummaryCard: React.FC<ScoreSummaryCardProps> = ({
     return (
         <Card className="w-full border border-indigo-100">
             <CardHeader className="bg-gradient-to-r from-violet-50 via-purple-50 to-indigo-50 pb-6">
-                <CardTitle className="text-center text-2xl font-bold text-gray-900">
+                <CardTitle className="text-center text-2xl font-bold text-indigo-700">
                     Score Summary
                 </CardTitle>
             </CardHeader>
 
             <CardContent className="pt-6">
                 <div className="space-y-4">
-                    <div className="grid grid-cols-4 font-semibold text-gray-800 border-b border-gray-200 pb-3 px-4">
-                        <div className="text-lg">Criterion</div>
-                        <div className="text-center text-lg">Raw Score</div>
-                        <div className="text-center text-lg">Weight</div>
-                        <div className="text-center text-lg">Weighted Score (80%)</div>
+                    <div className="grid grid-cols-5 font-semibold text-gray-800 border-b border-gray-200 pb-3 px-4">
+                        <div className="text-base">Criterion</div>
+                        <div className="text-center text-base">Raw Score</div>
+                        <div className="text-center text-base">Weight</div>
+                        <div className="text-center text-base">Weighted Score <br /><span className='text-sm'>(out of 80%)</span></div>
+                        <div className="text-center text-base">Total Score <br /><span className='text-sm'>(out of 100%)</span> </div>
                     </div>
                     <div className="space-y-2">
                         {chartData
                             .filter((item) => item.name !== 'overall')
-                            .map((item) => (
+                            .map((item, index) => (
                                 <div
-                                    key={item.name}
-                                    className="grid grid-cols-4 items-center gap-6 hover:bg-gray-50 px-4 py-3 rounded-lg transition-colors"
+                                    key={item.id || `${item.name}-${index}`}
+                                    className="grid grid-cols-5 items-center gap-6 hover:bg-gray-50 px-4 py-3 rounded-lg transition-colors"
                                 >
                                     <div className="font-medium text-gray-900 text-base">
                                         {capitalizeFirstWord(item.name)}
@@ -89,7 +91,7 @@ const ScoreSummaryCard: React.FC<ScoreSummaryCardProps> = ({
                                             // />
                                             <Input
                                                 type="number"
-                                                value={item.weight}
+                                                value={item.weight / 100}
                                                 disabled
                                                 readOnly
                                                 className="w-28 mx-auto text-center border-none bg-transparent cursor-default disabled:opacity-100"
@@ -101,13 +103,20 @@ const ScoreSummaryCard: React.FC<ScoreSummaryCardProps> = ({
                                     <div className="text-center text-gray-800 text-base">
                                         {((item.score * item.weight) / 100).toFixed(1)}%
                                     </div>
+                                    <div className="text-center text-gray-800 text-base">
+                                        {((item.score * item.weight) / 100).toFixed(1)}%
+                                    </div>
                                 </div>
                             ))}
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-6 mt-4 border-t border-gray-200 font-semibold bg-gray-50 px-4 py-4 rounded-lg">
-                        <div className="text-gray-900 text-lg">Total</div>
+                    <div className="grid grid-cols-5 items-center gap-6 mt-4 border-t border-gray-200 font-semibold bg-gray-50 px-4 py-4 rounded-lg">
+                        <div className="text-indigo-700 text-lg">Total</div>
                         <div className="text-center text-gray-800 text-lg">{totalScore.toFixed(1)}</div>
                         <div className="text-center text-gray-800 text-lg">0.8</div>
+                        <div className="text-center font-bold text-lg">
+                            {/* <div className="text-center font-bold text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"> */}
+                            {actualScore.toFixed(1)}%
+                        </div>
                         <div className="text-center font-bold text-lg">
                             {/* <div className="text-center font-bold text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"> */}
                             {actualScore.toFixed(1)}%
