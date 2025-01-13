@@ -206,25 +206,9 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
     }
   };
 
-
-  // const [weights, setWeights] = useState<Record<string, number>>(() =>
-  //   Object.keys(marking).reduce((acc, key) => ({ ...acc, [key]: 100 / Object.keys(marking).length }), {})
-  // );
-
-  // Add handlers for weight changes:
-  // const handleWeightChange = (field: string, value: number) =>
-  // {
-  //   setWeights(prev => ({
-  //     ...prev,
-  //     [field]: value
-  //   }));
-  // };
-
-  // const calculateWeightedScore = (score: number, weight: number) =>
-  // {
-  //   return (score * weight) / 100;
-  // };
-
+  const totalWeight = Object.entries(marking)
+    .filter(([key]) => key.toLowerCase() !== 'overall')
+    .reduce((sum, [key]) => sum + getDefaultWeight(key), 0);
 
 
   return (
@@ -310,13 +294,21 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
           <CardContent>
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-medium">File Name</h3>
+                <h3 className="font-bold">File Name</h3>
                 <p className="text-gray-600">{editedData.file_name}</p>
               </div>
               <div>
-                <h3 className="font-medium text-right">Overall Score</h3>
+                <h3 className="font-bold text-right">Overall Score (
+                  <span className='text-indigo-600'>
+                    out of 100%
+                  </span>
+                  )
+                </h3>
                 <p className="text-2xl font-semibold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  {Number(totalScore).toFixed(1)}%
+                  {/* {((Number(totalScore) * 0.2) + (Number(totalScore))).toFixed(1)}% */}
+                  {totalWeight <= 0.8
+                    ? ((Number(totalScore) * 0.2) + Number(totalScore)).toFixed(1)
+                    : totalScore.toFixed(1)}%
                 </p>
               </div>
             </div>

@@ -23,17 +23,9 @@ const AnalysisDownloadView: React.FC<DownloadViewProps> = ({
     chartData,
 }) =>
 {
-    console.log('Download View Values:', {
-        marking,
-        chartData,
-        totalScore,
-        weightedTotal: Object.entries(marking).reduce((sum, [key, score]) =>
-        {
-            const weight = getDefaultWeight(key);
-            return sum + (Number(score) * weight);
-        }, 0),
-        rawTotal: Object.values(marking).reduce((sum, score) => sum + Number(score), 0)
-    });
+    const totalWeight = Object.entries(marking)
+    .filter(([key]) => key.toLowerCase() !== 'overall')
+    .reduce((sum, [key]) => sum + getDefaultWeight(key), 0);
 
     return (
         <div className="space-y-8 p-8" id="download-content">
@@ -53,14 +45,19 @@ const AnalysisDownloadView: React.FC<DownloadViewProps> = ({
                                 <p className="text-gray-600">{analysis.file_name}</p>
                             </div>
                             <div>
-                                <h3 className="font-medium text-right">Overall Score (
+                                <h3 className="font-bold text-right">Overall Score (
                                     <span className='text-indigo-600'>
                                     out of 100%
                                     </span>
                                     )
                                 </h3>
                                 <p className="text-2xl font-semibold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                                    {calculateTotalScore(marking).toFixed(1)}%
+                                    {
+                                        totalWeight <= 0.8 
+                                        ? ((calculateTotalScore(marking) * 0.2) + calculateTotalScore(marking)).toFixed(1)
+                                        : calculateTotalScore(marking).toFixed(1)
+                                    }%
+                                    {/* {((calculateTotalScore(marking) * 0.2) + (calculateTotalScore(marking)) ).toFixed(1)}% */}
                                 </p>
                             </div>
                         </div>

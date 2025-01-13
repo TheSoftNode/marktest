@@ -24,31 +24,6 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
     const markingData = uploadType === 'code' ? data.marking_code : data.marking;
     const reasonData = uploadType === 'code' ? data.Reason_for_mark_code : data.Reason_for_mark;
 
-    // useEffect(() =>
-    // {
-    //     if (!markingData) return;
-
-    //     const totalRawScore = Object.values(markingData).reduce((sum, score) => sum + Number(score), 0);
-
-    //     const expectedScore = Object.keys(markingData).length * 100;
-
-    //     const realScore = (totalRawScore / expectedScore) * 100;
-    //     setActualScore(realScore)
-
-    //     const newChartData = Object.entries(markingData).map(([key, score]) =>
-    //     {
-    //         const numericScore = Number(score);
-    //         const calculatedScore = numericScore * (100 / expectedScore);
-    //         return {
-    //             name: key.replace(/_/g, ' '),
-    //             score: numericScore,
-    //             calculatedScore
-    //         };
-    //     });
-
-    //     setChartData(newChartData);
-    //     setTotalScore(totalRawScore);
-    // }, [markingData]);
 
     useEffect(() =>
     {
@@ -61,16 +36,17 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
             const weightMap: Record<string, number> = {
                 abstract: 0.05,
                 introduction: 0.05,
-                literature_review: 0.2,
+                "literature review": 0.2,
                 methodology: 0.1,
                 "results & findings": 0.25,
                 "conclusions & recommendations": 0.1,
                 references: 0.05,
-                // Add code analysis weights if needed
+
+                // Code analysis weights
                 readability: 0.2,
                 functionality: 0.2,
                 efficiency: 0.2,
-                error_handling: 0.2,
+                "error handling": 0.2,
                 modularity: 0.2,
             };
 
@@ -154,8 +130,12 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
 
     if (!markingData || !reasonData)
     {
-        return <Alert><AlertDescription>No data available</AlertDescription></Alert>;
+        return <Alert><AlertDescription>Check your file size!! It exceeds the allowed file size</AlertDescription></Alert>;
     }
+
+    const totalWeight = chartData
+        .filter(item => item.name !== 'overall')
+        .reduce((sum, item) => sum + (item.weight / 100), 0);
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -178,10 +158,15 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({
                     </h1>
                     <div className="text-right">
                         <p className="text-2xl font-semibold bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent">
-                            Overall Score: {actualScore.toFixed(1)}%
+                            {/* Overall Score: {((actualScore * 0.2) + (actualScore) ).toFixed(1)}% */}
+                            Overall Score: {
+                                totalWeight <= 0.8
+                                    ? ((actualScore * 0.2) + actualScore).toFixed(1)
+                                    : actualScore.toFixed(1)
+                            }%
                         </p>
                         <p className="text-sm text-gray-500">
-                            Based on actual scores
+                            (out of 100%)
                         </p>
                     </div>
                 </div>
