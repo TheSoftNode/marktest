@@ -52,7 +52,7 @@ export default function PaymentSuccessPage() {
           <Button
             variant="outline"
             className="w-full sm:w-auto border-violet-200 hover:bg-violet-50"
-            onClick={() => router.push('/credits')}
+            onClick={() => router.push('/Dashboard')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Credits
