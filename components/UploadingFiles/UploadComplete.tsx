@@ -550,9 +550,24 @@ export const UploadComplete = ({
                                     )}
 
                                     {!userAnalytics?.free_analysis_available && (
-                                        <div className="flex justify-between items-center text-sm mb-2">
-                                            <span className="text-gray-600">Your Balance:</span>
-                                            <span className="font-medium">
+                                        <div className="flex justify-between items-center text-sm mb-3 p-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-lg">
+                                            <span className="text-amber-800 font-medium flex items-center gap-2">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                >
+                                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                                </svg>
+                                                Current Balance
+                                            </span>
+                                            <span className={`font-bold text-base ${(balanceData?.credit_balance || 0) > 0
+                                                    ? 'text-amber-700'
+                                                    : 'text-red-600'
+                                                }`}>
                                                 {balanceData?.credit_balance || 0} credits
                                             </span>
                                         </div>
