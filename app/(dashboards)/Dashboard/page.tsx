@@ -247,7 +247,6 @@ const DashboardPage: React.FC = () =>
   const handleBuyCredits = (): void =>
   {
     setCreditDialogOpen(true);
-    console.log('Buy credits clicked');
   };
 
   const renderContent = () =>

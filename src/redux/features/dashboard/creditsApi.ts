@@ -40,7 +40,7 @@ export const creditsApi = createApi({
             invalidatesTags: ['Credits', 'Transactions'],
         }),
 
-        getBalance: builder.query<{ credit_balance: number }, void>({
+        getBalance: builder.query<{ credit_balance?: number, dollar_balance?: number }, void>({
             query: () => '/credits/balance',
             providesTags: ['Credits'],
         }),

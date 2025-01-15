@@ -33,7 +33,8 @@ import
 {
     useGetPricingTiersQuery,
     useCreatePricingTierMutation,
-    useUpdatePricingTierMutation
+    useUpdatePricingTierMutation,
+    useGetBalanceQuery
 } from '@/src/redux/features/dashboard/creditsApi';
 import { CreatePricingTierDialog } from './CreditDialogs/CreatePricingTierDialog';
 import { CreditPricingTier, EditPricingTierFormData } from '@/types/credits';
@@ -51,6 +52,7 @@ export const CreditManagement = () =>
     const { data: pricingTiers, isLoading } = useGetPricingTiersQuery({});
     const [createTier] = useCreatePricingTierMutation();
     const [updateTier] = useUpdatePricingTierMutation();
+     const { data: balanceData } = useGetBalanceQuery();
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [selectedTier, setSelectedTier] = useState<CreditPricingTier | null>(null);
@@ -60,6 +62,15 @@ export const CreditManagement = () =>
         setSelectedTier(tier);
         setIsEditDialogOpen(true);
     };
+
+    const creditBalance = React.useMemo(() => ({
+        current_credit: balanceData?.credit_balance || 0,
+        current_dollar: balanceData?.dollar_balance || 0,
+        nextExpiration: {
+          credits: 0,
+          days: 30
+        }
+      }), [balanceData]);
 
     const handleUpdateTier = async (values: {
         min_credits: number;
@@ -499,7 +510,9 @@ export const CreditManagement = () =>
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">€0.00</div>
+                        <div className="text-2xl font-bold">
+                            €{creditBalance.current_dollar.toFixed(2)}
+                        </div>
                     </CardContent>
                 </Card>
             </div>

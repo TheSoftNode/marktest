@@ -34,6 +34,7 @@ import
   CardDescription,
 } from "@/components/ui/card";
 import { FaEuroSign } from 'react-icons/fa';
+import { set } from 'date-fns';
 
 interface CreditPurchaseDialogProps
 {
@@ -54,8 +55,9 @@ export function CreditPurchaseDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState<string>("0.00");
   const [customRate, setCustomRate] = useState<string>("0.000");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [recordPayment, { isLoading }] = useRecordPaymentMutation();
+  // const [recordPayment, { isLoading }] = useRecordPaymentMutation();
   const { data: pricingTiers, isLoading: isLoadingTiers } = useGetPricingTiersQuery({ is_active: true });
   const [calculatePrice] = useCalculateCreditPriceMutation();
   const [createCheckoutSession] = useCreateCheckoutSessionMutation();
@@ -167,6 +169,7 @@ export function CreditPurchaseDialog({
   // };
 
   const handlePurchase = async () => {
+    setIsLoading(true);
     try {
         const credits = purchaseMode === 'custom' ? 
             parseInt(customCredits) : selectedPackage.credits;
@@ -181,8 +184,6 @@ export function CreditPurchaseDialog({
             credit_amount: credits 
         }).unwrap();
 
-        console.log('Price result:', priceResult.total_price);
-
         // Create checkout session
         const response = await createCheckoutSession({
             credit_amount: credits,
@@ -190,12 +191,14 @@ export function CreditPurchaseDialog({
             tier_type: "individual"
         }).unwrap();
 
+        setIsLoading(false);
         // Redirect to Stripe checkout
         window.location.href = response.checkout_url;
 
     } catch (error) {
         console.error('Purchase error:', error);
         toast.error('Failed to initiate checkout');
+        setIsLoading(false);
     }
 };
 
