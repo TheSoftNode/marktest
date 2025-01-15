@@ -90,6 +90,17 @@ export const creditsApi = createApi({
             }),
         }),
 
+        createCheckoutSession: builder.mutation<
+            { checkout_url: string },
+            { credit_amount: number; dollar_amount: number; tier_type: string }
+        >({
+            query: (data) => ({
+                url: '/credits/create-checkout-session/',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
     }),
 });
 
@@ -102,5 +113,6 @@ export const {
     useGetPricingTiersQuery,
     useCreatePricingTierMutation,
     useUpdatePricingTierMutation,
-    useCalculateCreditPriceMutation
+    useCalculateCreditPriceMutation,
+    useCreateCheckoutSessionMutation,
 } = creditsApi;

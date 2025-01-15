@@ -214,7 +214,7 @@ const AnalysisDetailPage: React.FC<AnalysisDetailPageProps> = ({ analysis, onBac
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-start md:justify-between flex-wrap gap-3 items-center mb-6">
         <Button
           variant="outline"
           onClick={onBack}

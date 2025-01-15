@@ -24,11 +24,11 @@ const AnalysisDownloadView: React.FC<DownloadViewProps> = ({
 }) =>
 {
     const totalWeight = Object.entries(marking)
-    .filter(([key]) => key.toLowerCase() !== 'overall')
-    .reduce((sum, [key]) => sum + getDefaultWeight(key), 0);
+        .filter(([key]) => key.toLowerCase() !== 'overall')
+        .reduce((sum, [key]) => sum + getDefaultWeight(key), 0);
 
     return (
-        <div className="space-y-8 p-8" id="download-content">
+        <div className="space-y-8" id="download-content">
             {/* Page 1 - Header and Overview */}
             <div className="page-break-after">
                 {/* Header */}
@@ -47,15 +47,15 @@ const AnalysisDownloadView: React.FC<DownloadViewProps> = ({
                             <div>
                                 <h3 className="font-bold text-right">Overall Score (
                                     <span className='text-indigo-600'>
-                                    out of 100%
+                                        out of 100%
                                     </span>
                                     )
                                 </h3>
                                 <p className="text-2xl font-semibold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                                     {
-                                        totalWeight <= 0.8 
-                                        ? ((calculateTotalScore(marking) * 0.2) + calculateTotalScore(marking)).toFixed(1)
-                                        : calculateTotalScore(marking).toFixed(1)
+                                        totalWeight <= 0.8
+                                            ? ((calculateTotalScore(marking) * 0.2) + calculateTotalScore(marking)).toFixed(1)
+                                            : calculateTotalScore(marking).toFixed(1)
                                     }%
                                     {/* {((calculateTotalScore(marking) * 0.2) + (calculateTotalScore(marking)) ).toFixed(1)}% */}
                                 </p>
@@ -106,12 +106,12 @@ const AnalysisDownloadView: React.FC<DownloadViewProps> = ({
                         totalScore={totalScore}
                         actualScore={
                             Object.entries(marking)
-                            .filter(([key]) => key.toLowerCase() !== 'overall')
-                            .reduce((sum, [key, score]) =>
-                            {
-                                const weight = getDefaultWeight(key);
-                                return sum + (Number(score) * weight);
-                            }, 0)
+                                .filter(([key]) => key.toLowerCase() !== 'overall')
+                                .reduce((sum, [key, score]) =>
+                                {
+                                    const weight = getDefaultWeight(key);
+                                    return sum + (Number(score) * weight);
+                                }, 0)
                         }
                         isEditing={false}
                     />

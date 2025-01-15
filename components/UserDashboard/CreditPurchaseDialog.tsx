@@ -13,7 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Info, DollarSign, CreditCardIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useGetPricingTiersQuery, useCalculateCreditPriceMutation, useRecordPaymentMutation } from '@/src/redux/features/dashboard/creditsApi';
+import { useGetPricingTiersQuery, 
+  useCalculateCreditPriceMutation, 
+  useRecordPaymentMutation,
+  useCreateCheckoutSessionMutation
+} from '@/src/redux/features/dashboard/creditsApi';
 import
 {
   Tabs,
@@ -54,6 +58,7 @@ export function CreditPurchaseDialog({
   const [recordPayment, { isLoading }] = useRecordPaymentMutation();
   const { data: pricingTiers, isLoading: isLoadingTiers } = useGetPricingTiersQuery({ is_active: true });
   const [calculatePrice] = useCalculateCreditPriceMutation();
+  const [createCheckoutSession] = useCreateCheckoutSessionMutation();
 
   const handleOpenChange = (open: boolean) =>
   {
@@ -126,40 +131,71 @@ export function CreditPurchaseDialog({
     setCustomCredits(value);
   };
 
-  const handlePurchase = async () =>
-  {
-    try
-    {
-      const credits = purchaseMode === 'custom' ? parseInt(customCredits) : selectedPackage.credits;
+  // const handlePurchase = async () =>
+  // {
+  //   try
+  //   {
+  //     const credits = purchaseMode === 'custom' ? parseInt(customCredits) : selectedPackage.credits;
 
-      // Get price calculation from API
-      const priceResult = await calculatePrice({ credit_amount: credits }).unwrap();
+  //     // Get price calculation from API
+  //     const priceResult = await calculatePrice({ credit_amount: credits }).unwrap();
 
-      if (purchaseMode === 'custom' && (!credits || credits < 50))
-      {
-        toast.error('Minimum purchase is 50 credits');
-        return;
-      }
+  //     if (purchaseMode === 'custom' && (!credits || credits < 50))
+  //     {
+  //       toast.error('Minimum purchase is 50 credits');
+  //       return;
+  //     }
 
-      await toast.promise(
-        recordPayment({
-          credit_amount: credits,
-          dollar_amount: priceResult.total_price
-        }).unwrap(),
-        {
-          loading: 'Processing purchase...',
-          success: `Successfully purchased ${credits} credits!`,
-          error: 'Failed to process purchase'
+  //     await toast.promise(
+  //       recordPayment({
+  //         credit_amount: credits,
+  //         dollar_amount: priceResult.total_price
+  //       }).unwrap(),
+  //       {
+  //         loading: 'Processing purchase...',
+  //         success: `Successfully purchased ${credits} credits!`,
+  //         error: 'Failed to process purchase'
+  //       }
+  //     );
+
+  //     handleOpenChange(false);
+  //   } catch (error)
+  //   {
+  //     console.error('Purchase error:', error);
+  //     toast.error('Failed to process purchase');
+  //   }
+  // };
+
+  const handlePurchase = async () => {
+    try {
+        const credits = purchaseMode === 'custom' ? 
+            parseInt(customCredits) : selectedPackage.credits;
+
+        if (purchaseMode === 'custom' && (!credits || credits < 50)) {
+            toast.error('Minimum purchase is 50 credits');
+            return;
         }
-      );
 
-      handleOpenChange(false);
-    } catch (error)
-    {
-      console.error('Purchase error:', error);
-      toast.error('Failed to process purchase');
+        // Get price calculation
+        const priceResult = await calculatePrice({ 
+            credit_amount: credits 
+        }).unwrap();
+
+        // Create checkout session
+        const response = await createCheckoutSession({
+            credit_amount: credits,
+            dollar_amount: priceResult.total_price,
+            tier_type: purchaseMode
+        }).unwrap();
+
+        // Redirect to Stripe checkout
+        window.location.href = response.checkout_url;
+
+    } catch (error) {
+        console.error('Purchase error:', error);
+        toast.error('Failed to initiate checkout');
     }
-  };
+};
 
 
   if (isLoadingTiers)

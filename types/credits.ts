@@ -46,6 +46,7 @@ export interface CreditPricingTier
     max_credits: number | null;
     price_per_credit: number;
     is_active: boolean;
+    tier_type: 'institution' | 'individual';
     created_at: string;
     updated_at: string;
 }
@@ -55,6 +56,7 @@ export interface CreditPriceCalculation
     credit_amount: number;
     price_per_credit: number;
     total_price: number;
+    tier_type: 'institution' | 'individual';
 }
 
 export interface EditPricingTierFormData
@@ -62,5 +64,17 @@ export interface EditPricingTierFormData
     min_credits: number;
     max_credits: number | null;
     price_per_credit: number;
+    tier_type: 'institution' | 'individual';
     is_active: boolean;
+}
+
+export interface CheckoutSession {
+    checkout_url: string;
+}
+
+export interface PaymentTracking extends Payment {
+    stripe_payment_id?: string;
+    stripe_session_id?: string;
+    status: 'pending' | 'completed' | 'failed';
+    tier_type: 'institution' | 'individual';
 }
