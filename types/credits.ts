@@ -30,6 +30,7 @@ export interface Transaction
     dollar_amount: number;
     time_of_use: string;
     balance_after: number;
+    status: 'pending' | 'completed' | 'failed';
 }
 
 export interface CreditUsageResponse

@@ -52,6 +52,8 @@ const DashboardPage: React.FC = () =>
   const { data: balanceData } = useGetBalanceQuery();
   const { data: transactionHistory } = useGetTransactionHistoryQuery({});
 
+  console.log(transactionHistory);
+
 
   // Handle window resize
   useEffect(() =>
@@ -136,6 +138,7 @@ const DashboardPage: React.FC = () =>
       date: format(new Date(transaction.time_of_use), 'MMM dd, yyyy'),
       credit_amount: Math.abs(transaction.credit_amount),
       dollar_amount: transaction.dollar_amount,
+      status: transaction.status,
       description: transaction.transaction_type === 'payment'
         ? `$${Math.abs(transaction.credit_amount).toFixed(2)}`
         : 'Analysis Usage'

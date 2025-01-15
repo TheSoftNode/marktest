@@ -182,7 +182,7 @@ export function CreditPurchaseDialog({
             credit_amount: credits 
         }).unwrap();
 
-        console.log('Price result:', priceResult);
+        console.log('Price result:', priceResult.total_price);
 
         // Create checkout session
         const response = await createCheckoutSession({
