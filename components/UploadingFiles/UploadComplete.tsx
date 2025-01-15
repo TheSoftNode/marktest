@@ -431,37 +431,42 @@ export const UploadComplete = ({
                                     </div>
                                 </div>
                             ) : (
-                                <div className="space-y-3">
-                                    <Label htmlFor="couponCode" className="text-sm font-medium text-gray-700">
-                                        Have a coupon code?
-                                    </Label>
-                                    <div className="relative">
-                                        <Input
-                                            id="couponCode"
-                                            placeholder="Enter coupon code"
-                                            value={couponCode}
-                                            onChange={handleCouponChange}
-                                            className="pl-9"
-                                            disabled={isSubmitting}
-                                        />
-                                        <Tag className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                        {isValidatingCoupon && (
-                                            <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-violet-600" />
-                                        )}
-                                    </div>
-                                    {couponError && (
-                                        <p className="text-sm text-red-500 flex items-center gap-2">
-                                            <AlertCircle className="h-4 w-4" />
-                                            {couponError}
-                                        </p>
+                                <>
+                                    {(balanceData?.credit_balance || 0) > 0 && (
+                                        <div className="space-y-3">
+                                            <Label htmlFor="couponCode" className="text-sm font-medium text-gray-700">
+                                                Have a coupon code?
+                                            </Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="couponCode"
+                                                    placeholder="Enter coupon code"
+                                                    value={couponCode}
+                                                    onChange={handleCouponChange}
+                                                    className="pl-9"
+                                                    disabled={isSubmitting}
+                                                />
+                                                <Tag className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                                {isValidatingCoupon && (
+                                                    <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-violet-600" />
+                                                )}
+                                            </div>
+                                            {couponError && (
+                                                <p className="text-sm text-red-500 flex items-center gap-2">
+                                                    <AlertCircle className="h-4 w-4" />
+                                                    {couponError}
+                                                </p>
+                                            )}
+                                            {couponDiscount > 0 && (
+                                                <p className="text-sm text-violet-600 flex items-center gap-2">
+                                                    <Check className="h-4 w-4" />
+                                                    {couponDiscount}% discount will be applied
+                                                </p>
+                                            )}
+                                        </div>
                                     )}
-                                    {couponDiscount > 0 && (
-                                        <p className="text-sm text-violet-600 flex items-center gap-2">
-                                            <Check className="h-4 w-4" />
-                                            {couponDiscount}% discount will be applied
-                                        </p>
-                                    )}
-                                </div>
+                                </>
+
                             )}
                         </div>
                     )}
@@ -542,7 +547,7 @@ export const UploadComplete = ({
                                         </span>
                                     </div>
 
-                                    {couponDiscount > 0 && (balanceData?.credit_balance || 0) > 0 && (
+                                    {couponDiscount > 0 && (
                                         <div className="flex justify-between items-center text-sm">
                                             <span className="text-indigo-600">Discount Applied:</span>
                                             <span className="font-medium text-indigo-600">-{couponDiscount}%</span>
@@ -565,8 +570,8 @@ export const UploadComplete = ({
                                                 Current Balance
                                             </span>
                                             <span className={`font-bold text-base ${(balanceData?.credit_balance || 0) > 0
-                                                    ? 'text-amber-700'
-                                                    : 'text-red-600'
+                                                ? 'text-amber-700'
+                                                : 'text-red-600'
                                                 }`}>
                                                 {balanceData?.credit_balance || 0} credits
                                             </span>
