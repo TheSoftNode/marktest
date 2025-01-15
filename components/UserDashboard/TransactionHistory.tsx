@@ -12,6 +12,7 @@ interface Transaction {
   credit_amount: number;
   dollar_amount: number;
   description: string;
+  status?: string;
 }
 
 interface TransactionHistoryProps {
@@ -68,6 +69,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
               <div>
                 <div className="font-medium">{transaction.title}</div>
                 <div className="text-sm text-gray-500">{transaction.date}</div>
+                <div className="text-sm text-gray-500">{transaction.status}</div>
               </div>
             </div>
             <div className="text-right">

@@ -33,6 +33,7 @@ import
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { FaEuroSign } from 'react-icons/fa';
 
 interface CreditPurchaseDialogProps
 {
@@ -181,11 +182,13 @@ export function CreditPurchaseDialog({
             credit_amount: credits 
         }).unwrap();
 
+        console.log('Price result:', priceResult);
+
         // Create checkout session
         const response = await createCheckoutSession({
             credit_amount: credits,
             dollar_amount: priceResult.total_price,
-            tier_type: purchaseMode
+            tier_type: "individual"
         }).unwrap();
 
         // Redirect to Stripe checkout
@@ -330,7 +333,7 @@ export function CreditPurchaseDialog({
               </>
             ) : (
               <>
-                <DollarSign className="mr-2 h-4 w-4" />
+                <FaEuroSign className="mr-2 h-4 w-4" />
                 {purchaseMode === 'custom'
                   ? `Purchase ${customCredits || '0'} Credits for $${estimatedPrice}`
                   : `Purchase ${selectedPackage?.credits || 0} Credits for $${selectedPackage?.price.toFixed(2) || '0.00'}`
