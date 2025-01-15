@@ -55,7 +55,6 @@ export function CreditPurchaseDialog({
   const [estimatedPrice, setEstimatedPrice] = useState<string>("0.00");
   const [customRate, setCustomRate] = useState<string>("0.000");
 
-  // API Hooks
   const [recordPayment, { isLoading }] = useRecordPaymentMutation();
   const { data: pricingTiers, isLoading: isLoadingTiers } = useGetPricingTiersQuery({ is_active: true });
   const [calculatePrice] = useCalculateCreditPriceMutation();
@@ -80,7 +79,7 @@ export function CreditPurchaseDialog({
       return {
         credits: minCredits,
         price: minCredits * pricePerCredit,
-        popular: minCredits === 250, // Assuming 250 is still the popular tier
+        popular: minCredits === 250, 
         description: tier.max_credits
           ? `${tier.min_credits} - ${tier.max_credits} credits`
           : `${tier.min_credits}+ credits`

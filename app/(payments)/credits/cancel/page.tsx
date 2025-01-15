@@ -13,7 +13,7 @@ export default function PaymentCancelledPage() {
   useEffect(() => {
     toast.error('Payment was cancelled.');
     const timer = setTimeout(() => {
-      router.push('/credits');
+      router.push('/Dashboard');
     }, 3000);
     return () => clearTimeout(timer);
   }, [router]);
@@ -52,14 +52,14 @@ export default function PaymentCancelledPage() {
           <Button
             variant="outline"
             className="w-full sm:w-auto border-red-200 hover:bg-red-50"
-            onClick={() => router.push('/credits')}
+            onClick={() => router.push('/Dashboard')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Credits
           </Button>
           <Button
             className="w-full sm:w-auto bg-gradient-to-r from-red-500 to-red-600"
-            onClick={() => router.push('/credits/purchase')}
+            onClick={() => router.push('/Dashboard')}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Try Again

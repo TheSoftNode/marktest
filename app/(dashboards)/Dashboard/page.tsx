@@ -52,10 +52,7 @@ const DashboardPage: React.FC = () =>
   const { data: balanceData } = useGetBalanceQuery();
   const { data: transactionHistory } = useGetTransactionHistoryQuery({});
 
-  console.log(transactionHistory);
 
-
-  // Handle window resize
   useEffect(() =>
   {
     const handleResize = () =>
