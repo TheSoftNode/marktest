@@ -31,6 +31,7 @@ import
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import { Badge } from '../ui/badge';
 
 interface UserAnalytics
 {
@@ -61,6 +62,7 @@ interface OverviewProps
     credit_amount: number;
     dollar_amount: number;
     description: string;
+    status: string;
   }>;
   onNewAnalysis: () => void;
   onBuyCredits: () => void;
@@ -113,8 +115,8 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, subtitle,
         {trend && (
           <span
             className={`font-medium ${trend.positive
-                ? 'text-emerald-600 bg-emerald-50'
-                : 'text-rose-600 bg-rose-50'
+              ? 'text-emerald-600 bg-emerald-50'
+              : 'text-rose-600 bg-rose-50'
               } px-1.5 py-0.5 rounded-full text-xs`}
           >
             {trend.value}
@@ -299,7 +301,22 @@ export const OverviewTab: React.FC<OverviewProps> = ({
                   </div>
                   <div className="flex-1">
                     <h4 className="text-sm font-medium">{transaction.title}</h4>
-                    <p className="text-sm text-gray-500">{transaction.description}</p>
+                    <p className="text-sm text-gray-500">{transaction.date}</p>
+                    <Badge
+                      variant={
+                        transaction.status === 'completed' ? 'secondary' :
+                          transaction.status === 'pending' ? 'outline' :
+                            'destructive'
+                      }
+                      className={`
+    ${transaction.status === 'completed' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 hover:bg-gradient-to-r hover:from-green-200 hover:to-emerald-200' :
+                          transaction.status === 'pending' ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-amber-700 hover:bg-gradient-to-r hover:from-yellow-200 hover:to-amber-200' :
+                            'bg-gradient-to-r from-red-100 to-rose-100 text-red-700 hover:bg-gradient-to-r hover:from-red-200 hover:to-rose-200'
+                        }
+  `}
+                    >
+                      {(transaction.status ?? '').charAt(0).toUpperCase() + (transaction.status ?? '').slice(1)}
+                    </Badge>
                   </div>
                   <div className="text-right">
                     <div className={`font-medium ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
