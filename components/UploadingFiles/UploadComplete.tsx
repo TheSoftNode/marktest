@@ -542,7 +542,7 @@ export const UploadComplete = ({
                                         </span>
                                     </div>
 
-                                    {couponDiscount > 0 && (
+                                    {couponDiscount > 0 && (balanceData?.credit_balance || 0) > 0 && (
                                         <div className="flex justify-between items-center text-sm">
                                             <span className="text-indigo-600">Discount Applied:</span>
                                             <span className="font-medium text-indigo-600">-{couponDiscount}%</span>
