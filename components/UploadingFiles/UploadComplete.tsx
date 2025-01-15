@@ -23,6 +23,8 @@ import
 } from '@/src/redux/features/dashboard/analysisApi';
 import { useGetUserCouponHistoryQuery, useValidateCouponMutation } from '@/src/redux/features/dashboard/couponApi';
 import { useApplyCouponMutation } from '@/src/redux/features/dashboard/dashboardApi';
+import { useGetBalanceQuery } from '@/src/redux/features/dashboard/creditsApi';
+import toast from 'react-hot-toast';
 
 interface UploadCompleteProps
 {
@@ -59,6 +61,7 @@ export const UploadComplete = ({
     const [validateCoupon] = useValidateCouponMutation();
     const [performAnalysis] = usePerformAnalysisMutation();
     const [applyCoupon] = useApplyCouponMutation();
+    const { data: balanceData } = useGetBalanceQuery();
 
 
 
@@ -302,6 +305,18 @@ export const UploadComplete = ({
         setShowConfirmDialog(false);
         setIsSubmitting(true);
 
+        if (!userAnalytics?.free_analysis_available)
+        {
+            const requiredCredits = calculateFinalCost();
+            const currentBalance = balanceData?.credit_balance || 0;
+
+            if (currentBalance < requiredCredits)
+            {
+                toast.error(`Insufficient credits. You need ${requiredCredits} credits but have ${currentBalance} credits.`);
+                return;
+            }
+        }
+
         await new Promise(resolve => setTimeout(resolve, 3000));
         onStartAnalysis(null);
 
@@ -451,6 +466,20 @@ export const UploadComplete = ({
                         </div>
                     )}
 
+                    {!userAnalytics?.free_analysis_available && (!balanceData?.credit_balance || balanceData.credit_balance <= 0) && (
+                        <Alert className="bg-red-50 border-red-100">
+                            <AlertCircle className="h-4 w-4 text-red-600" />
+                            <AlertDescription>
+                                <h4 className="font-medium text-red-800 mb-1">
+                                    Insufficient Credits
+                                </h4>
+                                <p className="text-sm text-red-600">
+                                    Please purchase credits to perform analysis.
+                                </p>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-3">
                         <Button
@@ -466,7 +495,7 @@ export const UploadComplete = ({
                             className="flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-sm"
                             onClick={() => setShowConfirmDialog(true)}
                             // onClick={() => handleSubmitForAnalysis}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || (!userAnalytics?.free_analysis_available && (!balanceData?.credit_balance || balanceData.credit_balance <= 0))}
                         >
                             {isSubmitting ? (
                                 <>
@@ -520,6 +549,15 @@ export const UploadComplete = ({
                                         </div>
                                     )}
 
+                                    {!userAnalytics?.free_analysis_available && (
+                                        <div className="flex justify-between items-center text-sm mb-2">
+                                            <span className="text-gray-600">Your Balance:</span>
+                                            <span className="font-medium">
+                                                {balanceData?.credit_balance || 0} credits
+                                            </span>
+                                        </div>
+                                    )}
+
                                     <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                         <span className="font-medium">Final Cost:</span>
                                         <span className="text-lg font-bold text-gray-900">
@@ -548,6 +586,7 @@ export const UploadComplete = ({
                         <Button
                             onClick={handleSubmitForAnalysis}
                             className="sm:flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-sm"
+                            disabled={isSubmitting || (!userAnalytics?.free_analysis_available && (!balanceData?.credit_balance || balanceData.credit_balance <= 0))}
                         >
                             {userAnalytics?.free_analysis_available
                                 ? 'Start Free Analysis'
