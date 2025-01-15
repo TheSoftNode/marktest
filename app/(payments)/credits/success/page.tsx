@@ -13,7 +13,7 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     toast.success('Payment successful! Credits have been added to your account.');
     const timer = setTimeout(() => {
-      router.push('/credits');
+      router.push('/Dashboard');
     }, 3000);
     return () => clearTimeout(timer);
   }, [router]);
