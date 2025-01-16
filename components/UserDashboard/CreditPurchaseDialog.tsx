@@ -259,10 +259,10 @@ export function CreditPurchaseDialog({
                       <h3 className="font-semibold text-lg">{pkg.credits} Credits</h3>
                       <p className="text-sm text-gray-500 mt-1">{pkg.description}</p>
                       <p className="text-sm bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mt-2">
-                        ${(pkg.price / pkg.credits).toFixed(3)} per credit
+                      €{(pkg.price / pkg.credits).toFixed(3)} per credit
                       </p>
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">${pkg.price.toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-gray-900">€{pkg.price.toFixed(2)}</div>
                   </div>
                 </div>
               ))}
@@ -298,13 +298,13 @@ export function CreditPurchaseDialog({
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Rate per credit:</span>
                       <span className="font-medium bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                        ${customRate}
+                      €{customRate}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Estimated total:</span>
                       <span className="font-bold text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                        ${estimatedPrice}
+                      €{estimatedPrice}
                       </span>
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export function CreditPurchaseDialog({
                 <div className="text-sm flex items-start gap-2">
                   <Info className="h-4 w-4 mt-0.5 flex-shrink-0 text-violet-500" />
                   <p className="text-gray-600">
-                    Minimum purchase is 50 credits. Final price will be calculated based on the current pricing tier.
+                    Minimum purchase is 10 credits. Final price will be calculated based on the current pricing tier.
                     Payment will be processed securely.
                   </p>
                 </div>
@@ -337,8 +337,8 @@ export function CreditPurchaseDialog({
               <>
                 <FaEuroSign className="mr-2 h-4 w-4" />
                 {purchaseMode === 'custom'
-                  ? `Purchase ${customCredits || '0'} Credits for $${estimatedPrice}`
-                  : `Purchase ${selectedPackage?.credits || 0} Credits for $${selectedPackage?.price.toFixed(2) || '0.00'}`
+                  ? `Purchase ${customCredits || '0'} Credits for €${estimatedPrice}`
+                  : `Purchase ${selectedPackage?.credits || 0} Credits for €${selectedPackage?.price.toFixed(2) || '0.00'}`
                 }
               </>
             )}

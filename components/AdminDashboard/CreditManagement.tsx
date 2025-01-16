@@ -52,7 +52,7 @@ export const CreditManagement = () =>
     const { data: pricingTiers, isLoading } = useGetPricingTiersQuery({});
     const [createTier] = useCreatePricingTierMutation();
     const [updateTier] = useUpdatePricingTierMutation();
-     const { data: balanceData } = useGetBalanceQuery();
+    const { data: balanceData } = useGetBalanceQuery();
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [selectedTier, setSelectedTier] = useState<CreditPricingTier | null>(null);
@@ -67,10 +67,12 @@ export const CreditManagement = () =>
         current_credit: balanceData?.credit_balance || 0,
         current_dollar: balanceData?.dollar_balance || 0,
         nextExpiration: {
-          credits: 0,
-          days: 30
+            credits: 0,
+            days: 30
         }
-      }), [balanceData]);
+    }), [balanceData]);
+
+    console.log('Credit Balance:', creditBalance);
 
     const handleUpdateTier = async (values: {
         min_credits: number;
@@ -97,241 +99,20 @@ export const CreditManagement = () =>
     };
 
 
-
-    // const handleToggleStatus = async (tier: CreditPricingTier) =>
-    // {
-    //     try
-    //     {
-    //         setUpdatingTierId(tier.id);
-
-    //         // If we're activating, first check for potential overlaps
-    //         if (!tier.is_active)
-    //         {
-    //             // Get all active tiers
-    //             const activeTiers = pricingTiers?.filter(t =>
-    //                 t.is_active && 
-    //                 t.id !== tier.id && 
-    //                 t.tier_type === tier.tier_type  
-    //             ) || [];
-
-    //             console.log('Active Tiers:', activeTiers);
-
-    //             // Check for potential overlaps
-    //             const hasOverlap = activeTiers.some(activeTier =>
-    //             {
-    //                 const activeMax = activeTier.max_credits || Infinity;
-    //                 const tierMax = tier.max_credits || Infinity;
-
-    //                 return !(
-    //                     tier.min_credits >= (activeMax) ||
-    //                     (tierMax) <= activeTier.min_credits
-    //                 );
-    //             });
-
-    //             if (hasOverlap)
-    //             {
-    //                 // Show confirmation dialog to user
-    //                 const confirmed = window.confirm(
-    //                     `This tier overlaps with existing active tiers. Would you like to deactivate overlapping tiers?`
-    //                 );
-
-    //                 if (!confirmed)
-    //                 {
-    //                     setUpdatingTierId(null);
-    //                     return;
-    //                 }
-
-    //                 // If confirmed, deactivate overlapping tiers first
-    //                 for (const activeTier of activeTiers)
-    //                 {
-    //                     const activeMax = activeTier.max_credits || Infinity;
-    //                     const tierMax = tier.max_credits || Infinity;
-
-    //                     if (!(tier.min_credits >= activeMax || tierMax <= activeTier.min_credits))
-    //                     {
-    //                         await updateTier({
-    //                             tier_id: activeTier.id,
-    //                             data: {
-    //                                 ...activeTier,
-    //                                 is_active: false
-    //                             }
-    //                         }).unwrap();
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         // Now proceed with the actual toggle
-    //         await updateTier({
-    //             tier_id: tier.id,
-    //             data: {
-    //                 min_credits: tier.min_credits,
-    //                 price_per_credit: tier.price_per_credit,
-    //                 max_credits: tier.max_credits,
-    //                 tier_type: tier.tier_type,
-    //                 is_active: !tier.is_active
-    //             }
-    //         }).unwrap();
-
-    //         toast.success(`Tier successfully ${tier.is_active ? 'deactivated' : 'activated'}`);
-
-    //     } catch (err: any)
-    //     {
-    //         console.error('Failed to toggle tier status:', err);
-    //         toast.error(
-    //             err?.data?.non_field_errors?.[0] ||
-    //             err?.data?.message ||
-    //             'Failed to update tier status'
-    //         );
-    //     } finally
-    //     {
-    //         setUpdatingTierId(null);
-    //     }
-    // };
-
-    // const handleToggleStatus = async (tier: CreditPricingTier) => {
-    //     try {
-    //         setUpdatingTierId(tier.id);
-
-    //         if (!tier.is_active) {
-    //             const activeTiers = pricingTiers?.filter(t =>
-    //                 t.is_active && 
-    //                 t.id !== tier.id &&
-    //                 t.tier_type === tier.tier_type
-    //             ) || [];
-
-    //             const hasOverlap = activeTiers.some(activeTier => {
-    //                 const activeMax = activeTier.max_credits ? Number(activeTier.max_credits) : Infinity;
-    //                 const tierMax = tier.max_credits ? Number(tier.max_credits) : Infinity;
-    //                 const activeMin = Number(activeTier.min_credits);
-    //                 const tierMin = Number(tier.min_credits);
-
-    //                 return !(tierMin >= activeMax || tierMax <= activeMin);
-    //             });
-
-    //             if (hasOverlap) {
-    //                 const confirmed = window.confirm(
-    //                     `This tier overlaps with existing active ${tier.tier_type} tiers. Would you like to deactivate overlapping tiers?`
-    //                 );
-
-    //                 if (!confirmed) {
-    //                     setUpdatingTierId(null);
-    //                     return;
-    //                 }
-
-    //                 for (const activeTier of activeTiers) {
-    //                     const activeMax = activeTier.max_credits ? Number(activeTier.max_credits) : Infinity;
-    //                     const tierMax = tier.max_credits ? Number(tier.max_credits) : Infinity;
-    //                     const activeMin = Number(activeTier.min_credits);
-    //                     const tierMin = Number(tier.min_credits);
-
-    //                     if (!(tierMin >= activeMax || tierMax <= activeMin)) {
-    //                         await updateTier({
-    //                             tier_id: activeTier.id,
-    //                             data: {
-    //                                 ...activeTier,
-    //                                 is_active: false,
-    //                                 tier_type: activeTier.tier_type
-    //                             }
-    //                         }).unwrap();
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         await updateTier({
-    //             tier_id: tier.id,
-    //             data: {
-    //                 min_credits: Number(tier.min_credits),
-    //                 price_per_credit: Number(tier.price_per_credit),
-    //                 max_credits: tier.max_credits ? Number(tier.max_credits) : null,
-    //                 is_active: !tier.is_active,
-    //                 tier_type: tier.tier_type
-    //             }
-    //         }).unwrap();
-
-    //         toast.success(`Tier successfully ${tier.is_active ? 'deactivated' : 'activated'}`);
-
-    //     } catch (err: any) {
-    //         console.error('Failed to toggle tier status:', err);
-    //         toast.error(
-    //             err?.data?.non_field_errors?.[0] ||
-    //             err?.data?.message ||
-    //             'Failed to update tier status'
-    //         );
-    //     } finally {
-    //         setUpdatingTierId(null);
-    //     }
-    // };
-
     const handleToggleStatus = async (tier: CreditPricingTier) =>
     {
         try
         {
             setUpdatingTierId(tier.id);
 
-            // If we're activating, first check for potential overlaps
-            if (!tier.is_active)
-            {
-                // Get all active tiers
-                const activeTiers = pricingTiers?.filter(t =>
-                    t.is_active && t.id !== tier.id
-                ) || [];
-
-                console.log('Active Tiers:', activeTiers);
-
-                // Check for potential overlaps
-                const hasOverlap = activeTiers.some(activeTier =>
-                {
-                    const activeMax = activeTier.max_credits || Infinity;
-                    const tierMax = tier.max_credits || Infinity;
-
-                    return !(
-                        tier.min_credits >= (activeMax) ||
-                        (tierMax) <= activeTier.min_credits
-                    );
-                });
-
-                if (hasOverlap)
-                {
-                    // Show confirmation dialog to user
-                    const confirmed = window.confirm(
-                        `This tier overlaps with existing active tiers. Would you like to deactivate overlapping tiers?`
-                    );
-
-                    if (!confirmed)
-                    {
-                        setUpdatingTierId(null);
-                        return;
-                    }
-
-                    // If confirmed, deactivate overlapping tiers first
-                    for (const activeTier of activeTiers)
-                    {
-                        const activeMax = activeTier.max_credits || Infinity;
-                        const tierMax = tier.max_credits || Infinity;
-
-                        if (!(tier.min_credits >= activeMax || tierMax <= activeTier.min_credits))
-                        {
-                            await updateTier({
-                                tier_id: activeTier.id,
-                                data: {
-                                    ...activeTier,
-                                    is_active: false
-                                }
-                            }).unwrap();
-                        }
-                    }
-                }
-            }
-
-            // Now proceed with the actual toggle
+            // Simply toggle the is_active status
             await updateTier({
                 tier_id: tier.id,
                 data: {
                     min_credits: tier.min_credits,
                     price_per_credit: tier.price_per_credit,
                     max_credits: tier.max_credits,
+                    tier_type: tier.tier_type,
                     is_active: !tier.is_active
                 }
             }).unwrap();
@@ -342,7 +123,6 @@ export const CreditManagement = () =>
         {
             console.error('Failed to toggle tier status:', err);
             toast.error(
-                err?.data?.non_field_errors?.[0] ||
                 err?.data?.message ||
                 'Failed to update tier status'
             );
