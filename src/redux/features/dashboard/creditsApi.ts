@@ -56,7 +56,7 @@ export const creditsApi = createApi({
             providesTags: ['Transactions'],
         }),
 
-        getPricingTiers: builder.query<CreditPricingTier[], { is_active?: boolean }>({
+        getPricingTiers: builder.query<CreditPricingTier[], { is_active?: boolean, tier_type?: string; }>({
             query: (params = {}) => ({
                 url: '/credits/pricing-tiers/',
                 params,
@@ -82,7 +82,7 @@ export const creditsApi = createApi({
             invalidatesTags: ['Credits'],
         }),
 
-        calculateCreditPrice: builder.mutation<CreditPriceCalculation, { credit_amount: number }>({
+        calculateCreditPrice: builder.mutation<CreditPriceCalculation, { credit_amount: number; tier_type: string; }>({
             query: (data) => ({
                 url: '/credits/pricing-tiers/calculate/',
                 method: 'POST',

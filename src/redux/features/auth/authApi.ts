@@ -119,7 +119,7 @@ export const authApi = createApi({
     }),
     refreshToken: builder.mutation<{ access: string }, { access_token: string }>({
       query: (data) => ({
-        url: '/refresh/',
+        url: '/token/refresh/',
         method: 'POST',
         body: data,
       }),
@@ -135,7 +135,7 @@ export const authApi = createApi({
     }),
     requestPasswordReset: builder.mutation<{ message: string }, { email: string }>({
       query: (data) => ({
-        url: '/password/reset/',
+        url: '/request-password-reset/',
         method: 'POST',
         body: data,
       }),
@@ -152,7 +152,7 @@ export const authApi = createApi({
       { email: string; token: string; new_password: string }
     >({
       query: (data) => ({
-        url: '/password/reset/confirm/',
+        url: '/reset-password/',
         method: 'POST',
         body: data,
       }),
@@ -162,7 +162,7 @@ export const authApi = createApi({
       { old_password: string; new_password: string }
     >({
       query: (data) => ({
-        url: '/password/change/',
+        url: '/change-password/',
         method: 'POST',
         body: data,
       }),

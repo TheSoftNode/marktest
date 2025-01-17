@@ -72,8 +72,6 @@ export const CreditManagement = () =>
         }
     }), [balanceData]);
 
-    console.log('Credit Balance:', creditBalance);
-
     const handleUpdateTier = async (values: {
         min_credits: number;
         max_credits?: number | null;
@@ -322,7 +320,7 @@ export const CreditManagement = () =>
                                     Inactive
                                 </TabsTrigger>
                             </TabsList>
-                            <TabsList className="bg-gradient-to-r from-violet-50 via-purple-50 to-blue-50">
+                            {/* <TabsList className="bg-gradient-to-r from-violet-50 via-purple-50 to-blue-50">
                                 <TabsTrigger
                                     value="all"
                                     onClick={() => setSelectedTierType('all')}
@@ -344,7 +342,7 @@ export const CreditManagement = () =>
                                 >
                                     Institution
                                 </TabsTrigger>
-                            </TabsList>
+                            </TabsList> */}
 
                             <div className="relative">
                                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />

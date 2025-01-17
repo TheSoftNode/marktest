@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Info, DollarSign, CreditCardIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useGetPricingTiersQuery, 
-  useCalculateCreditPriceMutation, 
+import
+{
+  useGetPricingTiersQuery,
+  useCalculateCreditPriceMutation,
   useRecordPaymentMutation,
   useCreateCheckoutSessionMutation
 } from '@/src/redux/features/dashboard/creditsApi';
@@ -34,7 +36,7 @@ import
   CardDescription,
 } from "@/components/ui/card";
 import { FaEuroSign } from 'react-icons/fa';
-import { set } from 'date-fns';
+import { useGetMeQuery } from '@/src/redux/features/auth/authApi';
 
 interface CreditPurchaseDialogProps
 {
@@ -57,16 +59,41 @@ export function CreditPurchaseDialog({
   const [customRate, setCustomRate] = useState<string>("0.000");
   const [isLoading, setIsLoading] = useState(false);
 
+  const getUserTierType = (userType?: string) =>
+  {
+    if (!userType) return 'individual';
+    return ['student', 'lecturer'].includes(userType.toLowerCase())
+      ? 'individual'
+      : 'institution';
+  };
+
+
   // const [recordPayment, { isLoading }] = useRecordPaymentMutation();
-  const { data: pricingTiers, isLoading: isLoadingTiers } = useGetPricingTiersQuery({ is_active: true });
+  // const { data: pricingTiers, isLoading: isLoadingTiers } = useGetPricingTiersQuery({ is_active: true });
+  const { data: userData } = useGetMeQuery();
+  const { data: pricingTiers, isLoading: isLoadingTiers } = useGetPricingTiersQuery({
+    is_active: true,
+    tier_type: getUserTierType(userData?.user?.user_type)
+  });
   const [calculatePrice] = useCalculateCreditPriceMutation();
   const [createCheckoutSession] = useCreateCheckoutSessionMutation();
+
+  const userTierType = getUserTierType(userData?.user?.user_type);
+
+
+  useEffect(() => {
+    console.log('User Type:', userData?.user?.user_type);
+    console.log('Tier Type:', userTierType);
+    console.log('Pricing Tiers:', pricingTiers);
+}, [userData, userTierType, pricingTiers]);
+
 
   const handleOpenChange = (open: boolean) =>
   {
     setIsOpen(open);
     externalOnOpenChange?.(open);
   };
+
 
   // Generate credit packages from pricing tiers
   const creditPackages = React.useMemo(() =>
@@ -81,7 +108,7 @@ export function CreditPurchaseDialog({
       return {
         credits: minCredits,
         price: minCredits * pricePerCredit,
-        popular: minCredits === 250, 
+        popular: minCredits === 250,
         description: tier.max_credits
           ? `${tier.min_credits} - ${tier.max_credits} credits`
           : `${tier.min_credits}+ credits`
@@ -99,33 +126,94 @@ export function CreditPurchaseDialog({
   }, [creditPackages]);
 
   // Update estimated price when custom credits change
-  useEffect(() =>
-  {
-    const updateEstimatedPrice = async () =>
-    {
-      if (purchaseMode === 'custom' && customCredits && parseInt(customCredits) >= 50)
-      {
-        try
-        {
-          const result = await calculatePrice({ credit_amount: parseInt(customCredits) }).unwrap();
-          setEstimatedPrice(result.total_price.toFixed(2));
-          setCustomRate((result.total_price / parseInt(customCredits)).toFixed(3));
-        } catch (error)
-        {
-          console.error('Price calculation error:', error);
+  // useEffect(() =>
+  // {
+  //   const updateEstimatedPrice = async () =>
+  //   {
+  //     if (purchaseMode === 'custom' && customCredits && parseInt(customCredits) >= 5)
+  //     {
+  //       try
+  //       {
+  //         const result = await calculatePrice({ credit_amount: parseInt(customCredits) }).unwrap();
+  //         setEstimatedPrice(result.total_price.toFixed(2));
+  //         setCustomRate((result.total_price / parseInt(customCredits)).toFixed(3));
+  //       } catch (error)
+  //       {
+  //         console.error('Price calculation error:', error);
+  //         setEstimatedPrice("0.00");
+  //         setCustomRate("0.000");
+  //       }
+  //     }
+  //     else
+  //     {
+  //       setEstimatedPrice("0.00");
+  //       setCustomRate("0.000");
+  //     }
+  //   };
+
+  //   updateEstimatedPrice();
+  // }, [customCredits, purchaseMode, calculatePrice]);
+
+  // Update estimated price when custom credits change
+useEffect(() => {
+  const updateEstimatedPrice = async () => {
+      if (purchaseMode === 'custom' && customCredits && parseInt(customCredits) >= 5) {
+          try {
+              const result = await calculatePrice({ 
+                  credit_amount: parseInt(customCredits),
+                  tier_type: getUserTierType(userData?.user?.user_type)  // Add tier_type
+              }).unwrap();
+              
+              setEstimatedPrice(result.total_price.toFixed(2));
+              setCustomRate((result.total_price / parseInt(customCredits)).toFixed(3));
+          } catch (error) {
+              console.error('Price calculation error:', error);
+              setEstimatedPrice("0.00");
+              setCustomRate("0.000");
+          }
+      } else {
           setEstimatedPrice("0.00");
           setCustomRate("0.000");
-        }
       }
-      else
-      {
-        setEstimatedPrice("0.00");
-        setCustomRate("0.000");
-      }
-    };
+  };
 
-    updateEstimatedPrice();
-  }, [customCredits, purchaseMode, calculatePrice]);
+  updateEstimatedPrice();
+}, [customCredits, purchaseMode, calculatePrice, userData?.user?.user_type]);
+
+// Also update handlePurchase to include tier_type in calculation
+const handlePurchase = async () => {
+  setIsLoading(true);
+  try {
+      const credits = purchaseMode === 'custom' ?
+          parseInt(customCredits) : selectedPackage.credits;
+          
+      if (purchaseMode === 'custom' && (!credits || credits < 5)) {
+          toast.error('Minimum purchase is 5 credits');
+          return;
+      }
+
+      // Get price calculation with tier_type
+      const priceResult = await calculatePrice({ 
+          credit_amount: credits,
+          tier_type: getUserTierType(userData?.user?.user_type)
+      }).unwrap();
+
+      // Create checkout session
+      const response = await createCheckoutSession({
+          credit_amount: credits,
+          dollar_amount: priceResult.total_price,
+          tier_type: getUserTierType(userData?.user?.user_type)
+      }).unwrap();
+
+      setIsLoading(false);
+      window.location.href = response.checkout_url;
+
+  } catch (error) {
+      console.error('Purchase error:', error);
+      toast.error('Failed to initiate checkout');
+      setIsLoading(false);
+  }
+};
 
   const handleCustomCreditsChange = (e: React.ChangeEvent<HTMLInputElement>) =>
   {
@@ -168,39 +256,91 @@ export function CreditPurchaseDialog({
   //   }
   // };
 
-  const handlePurchase = async () => {
-    setIsLoading(true);
-    try {
-        const credits = purchaseMode === 'custom' ? 
-            parseInt(customCredits) : selectedPackage.credits;
+  //   const handlePurchase = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //         const credits = purchaseMode === 'custom' ? 
+  //             parseInt(customCredits) : selectedPackage.credits;
 
-        if (purchaseMode === 'custom' && (!credits || credits < 50)) {
-            toast.error('Minimum purchase is 50 credits');
-            return;
-        }
+  //         if (purchaseMode === 'custom' && (!credits || credits < 50)) {
+  //             toast.error('Minimum purchase is 50 credits');
+  //             return;
+  //         }
 
-        // Get price calculation
-        const priceResult = await calculatePrice({ 
-            credit_amount: credits 
-        }).unwrap();
+  //         // Get price calculation
+  //         const priceResult = await calculatePrice({ 
+  //             credit_amount: credits 
+  //         }).unwrap();
 
-        // Create checkout session
-        const response = await createCheckoutSession({
-            credit_amount: credits,
-            dollar_amount: priceResult.total_price,
-            tier_type: "individual"
-        }).unwrap();
+  //         // Create checkout session
+  //         const response = await createCheckoutSession({
+  //             credit_amount: credits,
+  //             dollar_amount: priceResult.total_price,
+  //             tier_type: "individual"
+  //         }).unwrap();
 
-        setIsLoading(false);
-        // Redirect to Stripe checkout
-        window.location.href = response.checkout_url;
+  //         setIsLoading(false);
+  //         // Redirect to Stripe checkout
+  //         window.location.href = response.checkout_url;
 
-    } catch (error) {
-        console.error('Purchase error:', error);
-        toast.error('Failed to initiate checkout');
-        setIsLoading(false);
-    }
-};
+  //     } catch (error) {
+  //         console.error('Purchase error:', error);
+  //         toast.error('Failed to initiate checkout');
+  //         setIsLoading(false);
+  //     }
+  // };
+
+  // const handlePurchase = async () =>
+  // {
+  //   setIsLoading(true);
+  //   try
+  //   {
+  //     const credits = purchaseMode === 'custom' ?
+  //       parseInt(customCredits) : selectedPackage.credits;
+
+  //     if (purchaseMode === 'custom' && (!credits || credits < 50))
+  //     {
+  //       toast.error('Minimum purchase is 50 credits');
+  //       return;
+  //     }
+
+  //     // Get price calculation
+  //     const priceResult = await calculatePrice({
+  //       credit_amount: credits
+  //     }).unwrap();
+
+  //     // Create checkout session with user's tier type
+  //     const response = await createCheckoutSession({
+  //       credit_amount: credits,
+  //       dollar_amount: priceResult.total_price,
+  //       tier_type: getUserTierType(userData?.user?.user_type)
+  //     }).unwrap();
+
+  //     setIsLoading(false);
+  //     window.location.href = response.checkout_url;
+
+  //   } catch (error)
+  //   {
+  //     console.error('Purchase error:', error);
+  //     toast.error('Failed to initiate checkout');
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+  const getTierTypeMessage = () =>
+  {
+    const tierType = getUserTierType(userData?.user?.user_type);
+    return (
+      <div className="text-sm flex items-start gap-2 mt-2">
+        <Info className="h-4 w-4 mt-0.5 flex-shrink-0 text-violet-500" />
+        <p className="text-gray-600">
+          You are viewing {tierType} pricing tiers based on your account type.
+        </p>
+      </div>
+    );
+  };
+
 
 
   if (isLoadingTiers)
@@ -225,6 +365,7 @@ export function CreditPurchaseDialog({
           <DialogDescription>
             Choose a credit package or enter a custom amount
           </DialogDescription>
+          {getTierTypeMessage()}
         </DialogHeader>
 
         <Tabs defaultValue="package" className="w-full" onValueChange={(v) => setPurchaseMode(v as 'package' | 'custom')}>
@@ -259,7 +400,7 @@ export function CreditPurchaseDialog({
                       <h3 className="font-semibold text-lg">{pkg.credits} Credits</h3>
                       <p className="text-sm text-gray-500 mt-1">{pkg.description}</p>
                       <p className="text-sm bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mt-2">
-                      €{(pkg.price / pkg.credits).toFixed(3)} per credit
+                        €{(pkg.price / pkg.credits).toFixed(3)} per credit
                       </p>
                     </div>
                     <div className="text-2xl font-bold text-gray-900">€{pkg.price.toFixed(2)}</div>
@@ -298,13 +439,13 @@ export function CreditPurchaseDialog({
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Rate per credit:</span>
                       <span className="font-medium bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                      €{customRate}
+                        €{customRate}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Estimated total:</span>
                       <span className="font-bold text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                      €{estimatedPrice}
+                        €{estimatedPrice}
                       </span>
                     </div>
                   </div>

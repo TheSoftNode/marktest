@@ -45,14 +45,20 @@ const getTransactionColor = (type: TransactionType): string =>
 
 const formatAmount = (type: TransactionType, amount: number): string =>
 {
-  return `${type === 'credit' ? '+' : '-'}${amount.toLocaleString()} credits`;
+  return `${type === 'credit' ? '+ ' : '- '}${amount.toLocaleString()} credits`;
 };
+
+const formatDollar = (type: TransactionType, amount: number): string =>
+  {
+    return `${type === 'credit' ? '- ' : '+ '}€${amount.toLocaleString()}`;
+  };
 
 export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   transactions,
   className
 }) =>
 {
+
   if (!transactions.length)
   {
     return (
@@ -96,17 +102,31 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 </Badge>
               </div>
             </div>
-            <div className="text-right">
-              <div className={cn(
-                "font-medium",
-                getTransactionColor(transaction.type)
-              )}>
-                {formatAmount(transaction.type, transaction.credit_amount)}
+            {transaction.type === 'debit' ? (
+              <div className="text-right">
+                <div className={cn(
+                  "font-medium",
+                  getTransactionColor(transaction.type)
+                )}>
+                  {formatAmount(transaction.type, transaction.credit_amount)}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {transaction.description}
+                </div>
               </div>
-              <div className="text-sm text-gray-500">
-                {transaction.description}
+            ): (
+              <div className="text-right">
+                <div className={cn(
+                  "font-medium",
+                  getTransactionColor(transaction.type)
+                )}>
+                  {formatAmount(transaction.type, transaction.credit_amount)}
+                </div>
+                <div className="text-sm text-gray-500">
+                {formatDollar(transaction.type, transaction.dollar_amount)}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
